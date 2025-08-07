@@ -26,7 +26,7 @@ import CampaignStepReview from './CampaignStepReview';
 
 import { useCreateCampaign } from '../../../../hooks/engagement/marketing/useCampaigns';
 
-// Define a composite type for the entire wizard's form data
+// / Define a composite type for the entire wizard's form data
 export type CampaignWizardFormData = CampaignStepDefineData & CampaignStepContentData & CampaignStepAudienceData;
 
 // Define the step items for the wizard
@@ -124,26 +124,88 @@ export default function NewCampaignFormWizard({ tenant }: NewCampaignFormWizardP
     }
   };
 
-  // Handle final submission
+  // Handle Save as Draft submission
+  const handleSaveDraft = async () => {
+    setIsSavingStep(true);
+    
+    try {
+      const data = getValues();
+      console.log('Saving campaign as draft:', data);
+      
+      // Create the payload for the backend API with draft action
+      const payload: CampaignCreationPayload = {
+        name: data.name,
+        campaign_channel_type: data.campaign_channel_type,
+        sender_identifier: data.sender_identifier,
+        scheduled_at: data.scheduled_at,
+        target_list_ids: data.target_list_ids,
+        action: 'draft', // Save as draft
+      };
+      
+      // Add message details (same logic as publish)
+      let messageDetails: any = {};
+      
+      if (data.contentType === 'use_template') {
+        messageDetails.source_template_id = data.source_template_id;
+        
+        if (data.overrides && (data.overrides.subject || data.overrides.body_html || data.overrides.body_text)) {
+          messageDetails.overrides = {
+            subject: data.overrides.subject || '',
+            body_html: data.overrides.body_html || '',
+            body_text: data.overrides.body_text || ''
+          };
+        }
+      } else {
+        if (data.custom_content?.resolved_content) {
+          messageDetails.custom_content = {
+            channel_type: data.campaign_channel_type,
+            resolved_content: {
+              subject: data.custom_content.resolved_content.subject || '',
+              body_html: data.custom_content.resolved_content.body_html || '',
+              body_text: data.custom_content.resolved_content.body_text || ''
+            }
+          };
+        }
+      }
+      
+      if (Object.keys(messageDetails).length > 0) {
+        payload.message_details_for_create = messageDetails;
+      }
+      
+      console.log('Draft payload being sent:', payload);
+      
+      await createCampaignMutation.mutateAsync(payload);
+      router.push(`/${tenant}/tenant-admin/campaigns`);
+    } catch (err) {
+      console.error("Campaign draft save failed:", err);
+    } finally {
+      setIsSavingStep(false);
+    }
+    
+    return Promise.resolve();
+  };
+
+  // Handle Save and Publish submission
   const handleFinish = async () => {
     setIsSavingStep(true);
     
     try {
       const data = getValues();
-      console.log('Form data before submission:', data);
+      console.log('Publishing campaign:', data);
       
-      // Transform wizard data to match backend's expected payload structure
-      const payload: any = {
+      // Create the payload for the backend API with publish action
+      const payload: CampaignCreationPayload = {
         name: data.name,
         campaign_channel_type: data.campaign_channel_type,
         sender_identifier: data.sender_identifier,
+        scheduled_at: data.scheduled_at,
         target_list_ids: data.target_list_ids,
-        // Include scheduled_at if provided, otherwise set to null
-        scheduled_at: data.scheduled_at || null,
-      };
+        action: 'publish', // Save and publish
+      };  
       
       console.log('Scheduled at:', data.scheduled_at);
 
+      // Transform wizard data to match backend's expected payload structure
       // Create the message_details_for_create object with the correct structure
       let messageDetails: any = {};
       
@@ -185,26 +247,13 @@ export default function NewCampaignFormWizard({ tenant }: NewCampaignFormWizardP
         
         // Add message_details_for_create to the payload
         payload.message_details_for_create = messageDetails;
-        
-        // IMPORTANT: Also add the HTML content directly to custom_content for the form structure
-        // This ensures both the form structure and the payload structure are correct
-        if (data.contentType === 'custom_message' && messageDetails.custom_content) {
-          payload.custom_content = {
-            channel_type: data.campaign_channel_type,
-            resolved_content: {
-              subject: messageDetails.custom_content.resolved_content.subject,
-              body_html: messageDetails.custom_content.resolved_content.body_html,
-              body_text: messageDetails.custom_content.resolved_content.body_text
-            }
-          };
-        }
       }
       
       // Log the final payload
       console.log('Final payload being sent:', payload);
       
       await createCampaignMutation.mutateAsync(payload);
-      router.push(`/${tenant}/Crm/engagement/campaigns`); // Navigate to campaigns list on success
+      router.push(`/${tenant}/tenant-admin/campaigns`); // Navigate to campaigns list on success
     } catch (err) {
       console.error("Campaign creation failed in wizard:", err);
     } finally {
@@ -240,6 +289,7 @@ export default function NewCampaignFormWizard({ tenant }: NewCampaignFormWizardP
         onNext={handleNext}
         onBack={handleBack}
         onFinish={handleFinish}
+        onSaveDraft={handleSaveDraft}
         renderStepContent={renderStepContent}
         isLoading={false}
         isSavingStep={isSavingStep || createCampaignMutation.isPending}

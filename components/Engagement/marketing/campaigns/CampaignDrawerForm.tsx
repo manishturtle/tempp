@@ -49,17 +49,19 @@ import { useCreateCampaign, useUpdateCampaign } from '../../../../hooks/engageme
 import { useGetLists } from '../../../../hooks/engagement/marketing/useLists';
 import { CampaignCreationPayload } from '../../../../types/engagement/schemas/campaignSchemas';
 
+
 // Extend the CampaignCreationPayload type to include scheduled_at and attachments
 interface ExtendedCampaignPayload extends CampaignCreationPayload {
   scheduled_at?: string | null;
   attachments?: File[];
+  action?: 'draft' | 'publish';
 }
 
 // Fix for the Grid component TypeScript errors
 const Grid = (props: any) => <MuiGrid {...props} />;
 
 // Define the allowed campaign statuses for the form
-type FormCampaignStatus = 'Active' | 'Inactive' | 'Draft';
+type FormCampaignStatus = 'DRAFT' | 'SCHEDULED' | 'ACTIVE';
 
 // Form validation schema
 const campaignFormSchema = z.object({
@@ -74,7 +76,7 @@ const campaignFormSchema = z.object({
   body_text: z.string().nullable().default(''),
   target_list_ids: z.array(z.number()).min(1, 'At least one target list must be selected'),
   scheduled_at: z.date().nullable().optional(),
-  status: z.enum(['Active', 'Inactive']).default('Draft'),
+  status: z.enum(['DRAFT', 'SCHEDULED', 'ACTIVE']).default('DRAFT'),
   attachments: z.array(z.instanceof(File)).optional().default([]),
 });
 
@@ -85,18 +87,23 @@ interface CampaignDrawerFormProps {
   campaign?: Campaign | null;
   onClose: () => void;
   onSuccess: (formData?: any) => void;
+  onSaveDraft?: (formData?: any) => void;
 }
 
-export default function CampaignDrawerForm({ tenant, campaign, onClose, onSuccess }: CampaignDrawerFormProps) {
+export default function CampaignDrawerForm({ tenant, campaign, onClose, onSuccess, onSaveDraft }: CampaignDrawerFormProps) {
   const [error, setError] = useState<string | null>(null);
+  const [currentAction, setCurrentAction] = useState<'draft' | 'publish'>('publish');
   const isEditMode = !!campaign;
   
   // Initialize the query client for cache invalidation
   const queryClient = useQueryClient();
   
-  // State for list pagination
+  // State for list pagination and search
   const [listPage, setListPage] = useState(1);
   const [listSearch, setListSearch] = useState('');
+  
+  // Additional state for frontend filtering
+  const [frontendSearchTerm, setFrontendSearchTerm] = useState('');
   
   // Fetch available lists with server-side pagination
   const { data: listsData, isLoading: isLoadingLists, isFetching: isFetchingLists } =
@@ -203,10 +210,13 @@ export default function CampaignDrawerForm({ tenant, campaign, onClose, onSucces
   });
 
   // Form submission handler
-  const onSubmit: SubmitHandler<CampaignFormValues> = async (data) => {
+  const onSubmit: SubmitHandler<CampaignFormValues> = async (data, actionOverride?: 'draft' | 'publish') => {
     setError(null);
     console.log('Form submission started - isEditMode:', isEditMode);
     console.log('Campaign data:', campaign);
+    console.log('Action override:', actionOverride);
+    console.log('Current action state:', currentAction);
+    console.log('Final action to use:', actionOverride || currentAction);
     
     // Add a direct check to ensure we're handling edit mode correctly
     if (isEditMode && campaign) {
@@ -239,14 +249,16 @@ export default function CampaignDrawerForm({ tenant, campaign, onClose, onSucces
           subject: data.subject,
           body_html: data.body_html,
           body_text: data.body_text,
-          scheduled_at: data.scheduled_at
+          scheduled_at: data.scheduled_at,
+          action: currentAction
         });
         
-        // Prepare the simplified update payload with just the fields we need
+        // Prepare the update payload including the action parameter
         const updateData = {
           name: data.name,
           sender_identifier: data.sender_identifier,
-          target_list_ids: data.target_list_ids
+          target_list_ids: data.target_list_ids,
+          action: actionOverride || currentAction // Use actionOverride if provided, otherwise currentAction
         };
         
         console.log('Passing update data to parent component:', updateData);
@@ -264,6 +276,7 @@ export default function CampaignDrawerForm({ tenant, campaign, onClose, onSucces
           target_list_ids: data.target_list_ids,
           scheduled_at: data.scheduled_at ? data.scheduled_at.toISOString() : null,
           attachments: fileAttachments,
+          action: actionOverride || currentAction, // Use actionOverride if provided, otherwise currentAction
           // Add the message_details_for_create field with custom content
           message_details_for_create: {
             custom_content: {
@@ -327,9 +340,7 @@ export default function CampaignDrawerForm({ tenant, campaign, onClose, onSucces
       target_list_ids: [8]
     };
     
-    console.log('Hardcoded API URL:', 'http://localhost:8048/api/man/marketing/campaigns/18/');
-    console.log('Hardcoded payload:', hardcodedPayload);
-    
+
     
     // Set up headers with authentication
     const headers = getAuthHeaders();
@@ -362,12 +373,12 @@ export default function CampaignDrawerForm({ tenant, campaign, onClose, onSucces
       const simplePayload = {
         name: currentFormValues.name,
         sender_identifier: currentFormValues.sender_identifier,
-        target_list_ids: currentFormValues.target_list_ids
+        target_list_ids: currentFormValues.target_list_ids,
+        action: currentAction // Include action parameter for direct API calls
       };
       
       console.log('Making direct API call with simplified payload:', simplePayload);
-      console.log('API URL:', `${ENGAGEMENT_API_BASE_URL}/man/marketing/campaigns/${campaign.id}/`);
-      
+      console.log('API URL:', `${ENGAGEMENT_API_BASE_URL}/api/man/marketing/campaigns/${campaign.id}/`);
       
       
       // Set up headers with authentication
@@ -375,7 +386,7 @@ export default function CampaignDrawerForm({ tenant, campaign, onClose, onSucces
       
       // Make direct API call
       axios.put(
-        `${ENGAGEMENT_API_BASE_URL}/man/marketing/campaigns/${campaign.id}/`,
+        `${ENGAGEMENT_API_BASE_URL}/api/man/marketing/campaigns/${campaign.id}/`,
         simplePayload,
         { headers }
       )
@@ -390,21 +401,48 @@ export default function CampaignDrawerForm({ tenant, campaign, onClose, onSucces
       });
     }
   };
+
+  // Handle Save as Draft
+  const handleSaveDraft = () => {
+    console.log('Save as Draft clicked - setting action to draft');
+    setCurrentAction('draft');
+    // Trigger form submission with explicit action
+    const submitHandler = handleSubmit((data) => onSubmit(data, 'draft') as any);
+    submitHandler();
+  };
+
+  // Handle Save and Publish
+  const handleSaveAndPublish = () => {
+    console.log('Save and Publish clicked - setting action to publish');
+    setCurrentAction('publish');
+    // Trigger form submission with explicit action
+    const submitHandler = handleSubmit((data) => onSubmit(data, 'publish') as any);
+    submitHandler();
+  };
+
+  // Expose these functions to parent component
+  React.useEffect(() => {
+    if (onSaveDraft) {
+      // Store the draft handler in a way the parent can access it
+      (window as any).campaignDraftHandler = handleSaveDraft;
+    }
+    (window as any).campaignPublishHandler = handleSaveAndPublish;
+  }, [onSaveDraft]);
   
   return (
-    <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ p: 0, m: 0 }}>
+    <Box component="form" onSubmit={handleSubmit(onSubmit as any)} sx={{ p: 0, m: 0 }}>
       {error && (
         <Alert severity="error" sx={{ mb: 1, p: 0.5 }}>
           {error}
         </Alert>
       )}
 
-      <Typography variant="h6" sx={{ mb: 0.5 }}>
+      <Typography variant="h6" sx={{ mb: 0.5, fontSize: '1rem' }}>
         Campaign Info
       </Typography>
-      <Grid container spacing={3}>
-        {/* Campaign Name (Full Width) */}
-        <Grid item xs={12}>
+      <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, mb: 1 }}>
+        {/* Campaign Name (Left Half) */}
+        <Box sx={{ flex: 1 }}>
           <Controller
             name="name"
             control={control}
@@ -416,14 +454,17 @@ export default function CampaignDrawerForm({ tenant, campaign, onClose, onSucces
                 required
                 error={!!errors.name}
                 helperText={errors.name?.message}
+                margin="dense"
+                size="small"
+                FormHelperTextProps={{ sx: { mt: 0.25, mb: 0, fontSize: '0.7rem' } }}
               />
             )}
           />
-        </Grid>
+        </Box>
         
-        {/* Channel Type */}
-        <Grid item xs={12} md={6}>
-          <FormControl fullWidth error={!!errors.campaign_channel_type} disabled>
+        {/* Channel Type (Right Half) */}
+        <Box sx={{ flex: 1 }}>
+          <FormControl fullWidth error={!!errors.campaign_channel_type} disabled size="small" margin="dense">
             <InputLabel id="channel-type-label">Channel Type</InputLabel>
             <Controller
               name="campaign_channel_type"
@@ -433,6 +474,7 @@ export default function CampaignDrawerForm({ tenant, campaign, onClose, onSucces
                   {...field}
                   labelId="channel-type-label"
                   label="Channel Type"
+                  size="small"
                   sx={{
                     '& .MuiSelect-select': {
                       display: 'flex',
@@ -446,29 +488,29 @@ export default function CampaignDrawerForm({ tenant, campaign, onClose, onSucces
               )}
             />
             {errors.campaign_channel_type && (
-              <FormHelperText>{errors.campaign_channel_type.message}</FormHelperText>
+              <FormHelperText sx={{ mt: 0.5, mb: 0 }}>{errors.campaign_channel_type.message}</FormHelperText>
             )}
-            <FormHelperText>Only Email campaigns are supported in this version.</FormHelperText>
+            <FormHelperText sx={{ mt: 0.5, mb: 0 }}>Only Email campaigns are supported in this version.</FormHelperText>
           </FormControl>
-        </Grid>
-        
-        {/* Select Target Lists */}
-        <Grid item xs={12} md={6}>
-          <FormControl fullWidth error={!!errors.target_list_ids}>
-            <InputLabel id="target-audience-label">Select Target Lists</InputLabel>
+        </Box>
+      </Box>
+      
+      <Grid container spacing={1}>
+        {/* Target Lists (Full Width) */}
+        <Grid item xs={12}>
+          <FormControl fullWidth error={!!errors.target_list_ids} size="small" margin="dense">
             <Controller
               name="target_list_ids"
               control={control}
               render={({ field }) => (
                 <Select
                   {...field}
-                  labelId="target-audience-label"
-                  label="Select Target Lists"
                   multiple
                   displayEmpty
+                  size="small"
                   renderValue={(selected) => {
                     if (selected.length === 0) {
-                      return <Typography variant="body2" color="text.secondary">Select target lists</Typography>;
+                      return <Typography variant="body2" color="text.secondary">Select Target Lists</Typography>;
                     }
                     
                     // Use allKnownLists to display selected items properly
@@ -484,10 +526,12 @@ export default function CampaignDrawerForm({ tenant, campaign, onClose, onSucces
                               color="primary"
                               variant="outlined"
                               sx={{
-                                height: '24px',
+                                height: '20px',
+                                margin: '1px',
                                 '& .MuiChip-label': {
-                                  px: 0.75,
-                                  py: 0.25
+                                  px: 0.5,
+                                  py: 0.125,
+                                  fontSize: '0.75rem'
                                 }
                               }}
                             />
@@ -501,10 +545,12 @@ export default function CampaignDrawerForm({ tenant, campaign, onClose, onSucces
                       display: 'flex',
                       flexWrap: 'wrap',
                       gap: 0.25,
-                      minHeight: '56px',
-                      maxHeight: '80px',
+                      minHeight: '32px',
+                      maxHeight: '42px',
                       overflow: 'auto',
-                      alignItems: 'center'
+                      alignItems: 'center',
+                      paddingTop: '6px',
+                      paddingBottom: '6px'
                     }
                   }}
                   MenuProps={{
@@ -523,17 +569,31 @@ export default function CampaignDrawerForm({ tenant, campaign, onClose, onSucces
                       size="small"
                       placeholder="Search lists..."
                       fullWidth
-                      value={listSearch}
+                      value={frontendSearchTerm}
                       onChange={(e) => {
-                        setListSearch(e.target.value);
-                        setListPage(1); // Reset to first page when searching
+                        setFrontendSearchTerm(e.target.value);
                       }}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
                             <SearchIcon fontSize="small" />
                           </InputAdornment>
-                        )
+                        ),
+                        endAdornment: frontendSearchTerm ? (
+                          <InputAdornment position="end">
+                            <IconButton
+                              size="small"
+                              aria-label="clear search"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setFrontendSearchTerm('');
+                              }}
+                              edge="end"
+                            >
+                              <ClearIcon fontSize="small" />
+                            </IconButton>
+                          </InputAdornment>
+                        ) : null
                       }}
                       onClick={(e) => e.stopPropagation()}
                       onKeyDown={(e) => e.stopPropagation()}
@@ -547,11 +607,35 @@ export default function CampaignDrawerForm({ tenant, campaign, onClose, onSucces
                     </MenuItem>
                   ) : currentPageLists.length === 0 ? (
                     <MenuItem disabled>No lists found</MenuItem>
+                  ) : frontendSearchTerm && allKnownLists.filter(list => {
+                      const searchLower = frontendSearchTerm.toLowerCase();
+                      const nameMatch = list.name.toLowerCase().includes(searchLower);
+                      const descMatch = list.description ? list.description.toLowerCase().includes(searchLower) : false;
+                      return nameMatch || descMatch;
+                    }).length === 0 ? (
+                    <MenuItem disabled>No matching lists found</MenuItem>
                   ) : (
                     // Render list items directly without fragments
                     [
-                      // List items
-                      ...currentPageLists.map((list) => (
+                      // If there's a search term, search through all known lists rather than just current page
+                      ...(frontendSearchTerm ? allKnownLists : currentPageLists)
+                        .filter(list => {
+                          // If no search term, show current page lists (handled in the ternary above)
+                          if (!frontendSearchTerm) return true;
+                          
+                          // Case-insensitive search in name and description
+                          const searchLower = frontendSearchTerm.toLowerCase();
+                          const nameMatch = list.name.toLowerCase().includes(searchLower);
+                          const descMatch = list.description ? 
+                            list.description.toLowerCase().includes(searchLower) : false;
+                            
+                          return nameMatch || descMatch;
+                        })
+                        // For search results, ensure we don't have duplicates
+                        .filter((list, index, self) => 
+                          index === self.findIndex((l) => l.id === list.id)
+                        )
+                        .map((list) => (
                         <MenuItem
                           key={list.id}
                           value={list.id}
@@ -561,8 +645,8 @@ export default function CampaignDrawerForm({ tenant, campaign, onClose, onSucces
                         </MenuItem>
                       )),
                       
-                      // Pagination controls (only if needed)
-                      totalPages > 1 ? (
+                      // Pagination controls (only if needed and not searching)
+                      !frontendSearchTerm && totalPages > 1 ? (
                         <MenuItem
                           key="pagination"
                           dense
@@ -611,13 +695,13 @@ export default function CampaignDrawerForm({ tenant, campaign, onClose, onSucces
               )}
             />
             {errors.target_list_ids && (
-              <FormHelperText>{errors.target_list_ids.message}</FormHelperText>
+              <FormHelperText sx={{ mt: 0.5, mb: 0 }}>{errors.target_list_ids.message}</FormHelperText>
             )}
           </FormControl>
         </Grid>
         
-        {/* Schedule Date */}
-        <Grid item xs={12} md={6}>
+        {/* Schedule Date (Full Width) */}
+        <Grid item xs={12}>
           <LocalizationProvider dateAdapter={AdapterDateFns}>
             <Controller
               name="scheduled_at"
@@ -630,7 +714,10 @@ export default function CampaignDrawerForm({ tenant, campaign, onClose, onSucces
                   slotProps={{
                     textField: {
                       fullWidth: true,
-                      helperText: 'Leave empty to save as draft'
+                     
+                      margin: 'dense',
+                      size: 'small',
+                      FormHelperTextProps: { sx: { mt: 0.5, mb: 0 } }
                     }
                   }}
                   disablePast
@@ -640,10 +727,10 @@ export default function CampaignDrawerForm({ tenant, campaign, onClose, onSucces
           </LocalizationProvider>
         </Grid>
         
-        {/* Campaign Status */}
-        <Grid item xs={12} md={6}>
-          <FormControl fullWidth>
-            <InputLabel id="campaign-status-label">Campaign Status</InputLabel>
+        {/* ROW 3: Campaign Status (Right Half) */}
+        {/* <Grid item xs={6}>
+          <FormControl fullWidth size="small" margin="dense">
+            <InputLabel id="campaign-status-label">Status</InputLabel>
             <Controller
               name="status"
               control={control}
@@ -653,6 +740,7 @@ export default function CampaignDrawerForm({ tenant, campaign, onClose, onSucces
                   {...field}
                   labelId="campaign-status-label"
                   label="Campaign Status"
+                  size="small"
                 >
                   <MenuItem value="DRAFT">Draft</MenuItem>
                   <MenuItem value="SCHEDULED">Scheduled</MenuItem>
@@ -661,34 +749,41 @@ export default function CampaignDrawerForm({ tenant, campaign, onClose, onSucces
               )}
             />
           </FormControl>
-        </Grid>
+        </Grid> */}
       </Grid>
 
-      <Divider sx={{ my: 2 }} />
+      <Divider sx={{ my: 0.5 }} />
 
-      <Typography variant="h6" sx={{ mb: 1 }}>
-
+      <Typography variant="h6" sx={{ mb: 0.5, fontSize: '1rem' }}>
+        {/* Campaign Content */}
       </Typography>
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <Controller
-            name="subject"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="Email Subject"
-                fullWidth
-                error={!!errors.subject}
-                helperText={errors.subject?.message}
-              />
-            )}
-          />
-        </Grid>
+      
+      {/* Email Subject (Full Width) */}
+      <Box sx={{ mb: 1 }}>
+        <Controller
+          name="subject"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label="Email Subject"
+              fullWidth
+              error={!!errors.subject}
+              helperText={errors.subject?.message}
+              margin="dense"
+              size="small"
+              sx={{ width: '100%' }}
+              FormHelperTextProps={{ sx: { mt: 0.25, mb: 0, fontSize: '0.7rem' } }}
+            />
+          )}
+        />
+      </Box>
+      
+      <Grid container spacing={1}>
         
         <Grid item xs={12}>
           <FormControl fullWidth error={!!errors.body_html}>
-            <InputLabel shrink htmlFor="body-html-label" sx={{ position: 'relative', transform: 'none', mb: 1 }}>
+            <InputLabel shrink htmlFor="body-html-label" sx={{ position: 'relative', transform: 'none', mb: 0.25, fontSize: '0.875rem' }}>
               Email Content
             </InputLabel>
             <Controller
@@ -706,139 +801,112 @@ export default function CampaignDrawerForm({ tenant, campaign, onClose, onSucces
                     initialContent={field.value}
                     onChange={field.onChange}
                     editable={true}
+                    onAttachmentClick={() => {
+                      document.getElementById('attachment-file-input')?.click();
+                    }}
+                    attachmentCount={fileAttachments.length}
+                    compact={true}
                   />
+                  
+                  {/* Attachment status display below editor */}
+                  <Box sx={{ mt: 0.25, p: 0.75, border: '1px solid', borderColor: 'divider', borderRadius: 1, bgcolor: fileAttachments.length > 0 ? 'rgba(0, 200, 83, 0.05)' : 'rgba(0, 0, 0, 0.02)' }}>
+                    <Typography variant="subtitle2" sx={{ mb: 0.25, fontSize: '0.875rem' }} color={fileAttachments.length > 0 ? 'success.main' : 'text.secondary'}>
+                      Selected Files: {fileAttachments.length}
+                    </Typography>
+                    
+                    {fileAttachments.length > 0 ? (
+                      <Stack spacing={0.5}>
+                        {fileAttachments.map((file: File, index: number) => (
+                          <Box
+                            key={index}
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              p: 0.5,
+                              border: '1px solid',
+                              borderColor: 'divider',
+                              borderRadius: 1,
+                              bgcolor: 'background.paper',
+                              fontSize: '0.75rem'
+                            }}
+                          >
+                            <AttachFileIcon fontSize="small" sx={{ mr: 0.5 }} />
+                            <Typography variant="body2" sx={{ flexGrow: 1, fontSize: '0.75rem' }}>
+                              {file.name} ({(file.size / 1024).toFixed(2)} KB)
+                            </Typography>
+                            <Button
+                              size="small"
+                              variant="text"
+                              color="error"
+                              sx={{ minWidth: 'auto', p: 0.25 }}
+                              onClick={() => {
+                                const newFiles = fileAttachments.filter((_, i) => i !== index);
+                                setFileAttachments(newFiles);
+                                setValue('attachments', newFiles);
+                              }}
+                            >
+                              <CloseIcon fontSize="small" />
+                            </Button>
+                          </Box>
+                        ))}
+                      </Stack>
+                    ) : (
+                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
+                        No files attached. Click the attachment icon in the toolbar to select files.
+                      </Typography>
+                    )}
+                  </Box>
                 </Box>
               )}
             />
             {errors.body_html && (
-              <FormHelperText>{errors.body_html.message}</FormHelperText>
+              <FormHelperText sx={{ mt: 0.25, mb: 0, fontSize: '0.7rem' }}>{errors.body_html.message}</FormHelperText>
             )}
           </FormControl>
         </Grid>
       </Grid>
 
-      <Divider sx={{ my: 2 }} />
-
-      <Typography variant="h6" sx={{ mb: 1 }}>
-        Attachments
-      </Typography>
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <Controller
-            name="attachments"
-            control={control}
-            render={({ field }) => (
-              <Box>
-                <input
-                  accept="*/*"
-                  style={{ display: 'none' }}
-                  id="attachment-file-input"
-                  multiple
-                  type="file"
-                  onChange={(e) => {
-                    if (!e.target.files || e.target.files.length === 0) {
-                      console.log('No files selected');
-                      return;
-                    }
-                    
-                    try {
-                      // Convert FileList to Array
-                      const files = Array.from(e.target.files);
-                      console.log('Files selected:', files);
-                      
-                      // Create a completely new array for state update
-                      const newAttachments = [...fileAttachments];
-                      
-                      // Add each file individually to ensure they're properly added
-                      files.forEach(file => {
-                        newAttachments.push(file);
-                      });
-                      
-                      console.log('New attachments array:', newAttachments);
-                      
-                      // Update our state with the new array
-                      setFileAttachments(newAttachments);
-                      
-                      // Force update the form state
-                      field.onChange(newAttachments);
-                      setValue('attachments', newAttachments);
-                      
-                      // Reset the input to allow selecting the same file again
-                      e.target.value = '';
-                    } catch (error) {
-                      console.error('Error handling file selection:', error);
-                    }
-                  }}
-                />
-                <label htmlFor="attachment-file-input">
-                  <Button
-                    variant="outlined"
-                    component="span"
-                    startIcon={<AttachFileIcon />}
-                    sx={{ mb: 1 }}
-                  >
-                    Add Attachments
-                  </Button>
-                </label>
-                
-                {/* Always show the attachments section, even if empty */}
-                <Box sx={{ mt: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 2, bgcolor: fileAttachments.length > 0 ? 'rgba(0, 200, 83, 0.05)' : 'transparent' }}>
-                  <Typography variant="subtitle2" gutterBottom color={fileAttachments.length > 0 ? 'success.main' : 'text.primary'}>
-                    Selected Files: {fileAttachments.length}
-                  </Typography>
-                  
-                  {fileAttachments.length > 0 ? (
-                    <Stack spacing={1}>
-                      {fileAttachments.map((file: File, index: number) => (
-                        <Box
-                          key={index}
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            p: 1,
-                            border: '1px solid',
-                            borderColor: 'divider',
-                            borderRadius: 1,
-                            bgcolor: 'background.paper'
-                          }}
-                        >
-                          <AttachFileIcon fontSize="small" sx={{ mr: 1 }} />
-                          <Typography variant="body2" sx={{ flexGrow: 1 }}>
-                            {file.name} ({(file.size / 1024).toFixed(2)} KB)
-                          </Typography>
-                          <Button
-                            size="small"
-                            variant="text"
-                            color="error"
-                            onClick={() => {
-                              // Remove the file from our separate state
-                              const newFiles = fileAttachments.filter((_, i) => i !== index);
-                              setFileAttachments(newFiles);
-                              
-                              // Also update the form state
-                              field.onChange(newFiles);
-                              setValue('attachments', newFiles);
-                              
-                              // Log for debugging
-                              console.log('File removed, remaining files:', newFiles);
-                            }}
-                          >
-                            <CloseIcon fontSize="small" />
-                          </Button>
-                        </Box>
-                      ))}
-                    </Stack>
-                  ) : (
-                    <Typography variant="body2" color="text.secondary">
-                      No files attached. Click "Add Attachments" to select files.
-                    </Typography>
-                  )}
-                </Box>
-              </Box>
-            )}
-          />
-        </Grid>
-      </Grid>
+      {/* Hidden file input for attachment functionality */}
+      <input
+        accept="*/*"
+        style={{ display: 'none' }}
+        id="attachment-file-input"
+        multiple
+        type="file"
+        onChange={(e) => {
+          if (!e.target.files || e.target.files.length === 0) {
+            console.log('No files selected');
+            return;
+          }
+          
+          try {
+            // Convert FileList to Array
+            const files = Array.from(e.target.files);
+            console.log('Files selected:', files);
+            
+            // Create a completely new array for state update
+            const newAttachments = [...fileAttachments];
+            
+            // Add each file individually to ensure they're properly added
+            files.forEach(file => {
+              newAttachments.push(file);
+            });
+            
+            console.log('New attachments array:', newAttachments);
+            
+            // Update our state with the new array
+            setFileAttachments(newAttachments);
+            
+            // Force update the form state
+            setValue('attachments', newAttachments);
+            
+            // Reset the input to allow selecting the same file again
+            e.target.value = '';
+          } catch (error) {
+            console.error('Error handling file selection:', error);
+          }
+        }}
+      />
       
       {/* Hidden submit button that will be triggered by the AnimatedDrawer's save button */}
       <Button

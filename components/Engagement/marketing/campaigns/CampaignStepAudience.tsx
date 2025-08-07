@@ -21,6 +21,7 @@ interface ExtendedMarketingList extends MarketingList {
   list_type_display?: string;
 }
 
+
 const CampaignStepAudience: React.FC = () => {
   // const { t } = useTranslation();
   const { control, setValue, getValues, formState: { errors } } = useFormContext<CampaignWizardFormData>();
@@ -69,7 +70,11 @@ const CampaignStepAudience: React.FC = () => {
             multiple
             id="target-lists-autocomplete"
             options={availableLists}
-            getOptionLabel={(option) => `${option.name}${option.description ? ` - ${option.description}` : ''} (${option.list_type_display || (option.list_type === 'STATIC' ? 'Static' : 'Dynamic')})`}
+            getOptionLabel={(option) => `${option.name}${option.description ? ` - ${option.description}` : ''} (${option.list_type_display || 
+              (option.list_type === 'STATIC' ? 'Static' : 
+               option.list_type === 'DYNAMIC_SEGMENT' ? 'Dynamic' : 
+               option.list_type === 'ACTIVE' ? 'Active' : 
+               option.list_type === 'ARCHIVED' ? 'Archived' : 'Unknown')})`}
             value={availableLists.filter(list => field.value?.includes(list.id))} // Ensure value is array of objects
             onChange={(event, newValue) => {
               setValue('target_list_ids', newValue.map(list => list.id), { shouldValidate: true });
@@ -102,7 +107,10 @@ const CampaignStepAudience: React.FC = () => {
               value.map((option, index) => (
                 <Chip
                   variant="outlined"
-                  label={`${option.name} (${option.list_type === 'STATIC' ? 'S' : 'D'})`}
+                  label={`${option.name} (${option.list_type === 'STATIC' ? 'S' : 
+                    option.list_type === 'DYNAMIC_SEGMENT' ? 'D' : 
+                    option.list_type === 'ACTIVE' ? 'A' : 
+                    option.list_type === 'ARCHIVED' ? 'AR' : '?'})`}
                   {...getTagProps({ index })}
                   key={option.id}
                 />

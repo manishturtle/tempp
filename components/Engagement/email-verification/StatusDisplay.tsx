@@ -6,7 +6,6 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { 
   getSubStatusDisplayInfo, 
   getSubStatusDisplayWithColor, 
-  SubStatusDisplayInfo 
 } from '../../../utils/engagement/evsStatusMappings';
 
 interface StatusDisplayProps {
@@ -133,17 +132,11 @@ export const JobStatusDisplay: React.FC<JobStatusProps> = ({
   }
   
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <Chip 
-        label={status} 
-        color={color as any}
-        size={size}
-      />
-      <Tooltip title={tooltipContent} arrow placement="right">
-        <IconButton size="small" sx={{ ml: 0.5, p: 0 }}>
-          <InfoOutlinedIcon fontSize="small" />
-        </IconButton>
-      </Tooltip>
-    </Box>
+    <Chip 
+      label={status} 
+      color={color as any}
+      size={size}
+      variant="outlined"
+    />
   );
 };

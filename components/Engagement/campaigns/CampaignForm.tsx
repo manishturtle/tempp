@@ -31,7 +31,6 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Campaign, CampaignFormValues } from '../../../types/engagement/campaign';
 import { useCreateCampaign, useUpdateCampaign, useUpdateCampaignRecipients } from '../../../hooks/engagement/campaigns/useCampaignMutations';
 import { useAvailableEmailLists, useEmailListDetails } from '../../../hooks/engagement/campaigns/useEmailList';
-
 // Form validation schema
 const campaignFormSchema = z.object({
   campaign_name: z.string().min(1, 'Campaign name is required'),

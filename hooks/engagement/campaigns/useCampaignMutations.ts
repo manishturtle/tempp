@@ -3,13 +3,10 @@
 import axios from 'axios';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Campaign, CampaignFormValues } from '../../../types/engagement/campaign';
-
 import { ENGAGEMENT_API_BASE_URL } from '@/utils/constants';
 import {MARKETING_API} from "../../../services_engagement/apiConstants"
-
 import { getAuthHeaders } from '../../api/auth';
 
-// import { getToken, handleMissingToken, MARKETING_API } from '../../../constants/apiConstants';
 
 /**
  * Hook to create a new campaign
@@ -151,8 +148,7 @@ export const useCreateCampaign = (tenantSlug: string) => {
         formData.append('status', campaignData.status);
       }
       
-     
-   
+
       // Set up headers with authentication
       const headers = getAuthHeaders();
       // No Content-Type header for FormData - browser sets it automatically with boundary
@@ -311,7 +307,6 @@ export const useUpdateCampaign = (tenantSlug: string) => {
         formData.append('status', data.status);
       }
       
-     
       
       // Set up headers with authentication
       const headers = getAuthHeaders();
@@ -346,10 +341,11 @@ export const useDeleteCampaign = (tenantSlug: string) => {
 
   return useMutation({
     mutationFn: async (campaignId: number | string) => {
+      // Get token from localStorage
       
       
       const headers = {
-       ...getAuthHeaders()
+          ...getAuthHeaders()
       };
       
       try {
@@ -387,9 +383,18 @@ export const useUpdateCampaignRecipients = (tenantSlug: string) => {
       removeRecipients?: string[]; 
     }) => {
       // Get token from localStorage
-    
+      const token = getToken();
+      
+      // If no token is available, redirect to login
+      if (!token && typeof window !== 'undefined') {
+        console.warn('No authentication token found. Redirecting to login...');
+        window.location.href = '/login';
+        throw new Error('Authentication token not found');
+      }
+      
       const headers = {
-        ...getAuthHeaders()
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+        'Content-Type': 'application/json'
       };
       
       const response = await axios.post(
@@ -423,10 +428,19 @@ export const useScheduleCampaign = (tenantSlug: string) => {
       campaignId: number | string; 
       executedAt: string; 
     }) => {
-     
+      // Get token from localStorage
+      const token = getToken();
+      
+      // If no token is available, redirect to login
+      if (!token && typeof window !== 'undefined') {
+        console.warn('No authentication token found. Redirecting to login...');
+        window.location.href = '/login';
+        throw new Error('Authentication token not found');
+      }
       
       const headers = {
-        ...getAuthHeaders()
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+        'Content-Type': 'application/json'
       };
       
       const response = await axios.post(
@@ -452,10 +466,19 @@ export const useCancelCampaign = (tenantSlug: string) => {
 
   return useMutation({
     mutationFn: async (campaignId: number | string) => {
-    
+      // Get token from localStorage
+      const token = getToken();
+      
+      // If no token is available, redirect to login
+      if (!token && typeof window !== 'undefined') {
+        console.warn('No authentication token found. Redirecting to login...');
+        window.location.href = '/login';
+        throw new Error('Authentication token not found');
+      }
       
       const headers = {
-        ...getAuthHeaders()
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+        'Content-Type': 'application/json'
       };
       
       const response = await axios.post(

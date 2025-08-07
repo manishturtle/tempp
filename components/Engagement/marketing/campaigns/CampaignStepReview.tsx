@@ -19,6 +19,7 @@ interface CampaignStepReviewProps {
   formData: CampaignWizardFormData;
 }
 
+
 const CampaignStepReview: React.FC<CampaignStepReviewProps> = ({ formData }) => {
   // const { t } = useTranslation();
   const [selectedTemplate, setSelectedTemplate] = useState<MessageTemplate | null>(null);
