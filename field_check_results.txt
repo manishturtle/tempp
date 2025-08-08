@@ -1,0 +1,30 @@
+
+Table: ecomm_inventory_fulfillmentlocation
+Columns: id, created_at, updated_at, name, location_type, address_line_1, address_line_2, city, state_province, postal_code, country_code, is_active, created_by_id, updated_by_id, client_id, company_id
+client_id exists: True
+company_id exists: True
+
+Table: ecomm_inventory_adjustmentreason
+Columns: id, created_at, updated_at, name, description, is_active, created_by_id, updated_by_id, client_id, company_id
+client_id exists: True
+company_id exists: True
+
+Table: ecomm_inventory_inventory
+Columns: id, created_at, updated_at, stock_quantity, reserved_quantity, non_saleable_quantity, hold_quantity, reorder_point, reorder_quantity, created_by_id, location_id, product_id, updated_by_id, client_id, company_id
+client_id exists: True
+company_id exists: True
+
+Table: ecomm_inventory_serializedinventory
+Columns: id, created_at, updated_at, serial_number, status, notes, created_by_id, inventory_record_id, location_id, product_id, updated_by_id, client_id, company_id
+client_id exists: True
+company_id exists: True
+
+Table: ecomm_inventory_lot
+Columns: id, created_at, updated_at, lot_number, quantity, status, expiry_date, manufacturing_date, cost_price_per_unit, notes, created_by_id, inventory_record_id, location_id, parent_lot_id, product_id, updated_by_id, client_id, company_id
+client_id exists: True
+company_id exists: True
+
+Table: ecomm_inventory_inventoryadjustment
+Columns: id, created_at, updated_at, adjustment_type, quantity_change, new_stock_quantity, notes, timestamp, created_by_id, inventory_id, reason_id, updated_by_id, client_id, company_id
+client_id exists: True
+company_id exists: True

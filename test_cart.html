@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce Cart Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button.primary {
+            background-color: #2ecc71;
+        }
+        button.primary:hover {
+            background-color: #27ae60;
+        }
+        button.danger {
+            background-color: #e74c3c;
+        }
+        button.danger:hover {
+            background-color: #c0392b;
+        }
+        input, select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        #response, #cartContents, #errorMessage {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        #response, #cartContents {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+        }
+        #errorMessage {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            display: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .field-group {
+            margin-bottom: 15px;
+        }
+        pre {
+            white-space: pre-wrap;
+        }
+        .loader {
+            display: none;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 2s linear infinite;
+            margin-top: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>E-Commerce Cart Test Page</h1>
+        
+        <div class="section">
+            <h2>Add Item to Cart</h2>
+            <div class="field-group">
+                <label for="productSku">Product SKU:</label>
+                <input type="text" id="productSku" value="Test399" placeholder="Enter product SKU">
+            </div>
+            
+            <div class="field-group">
+                <label for="quantity">Quantity:</label>
+                <input type="number" id="quantity" value="2" min="1" placeholder="Enter quantity">
+            </div>
+            
+            <button onclick="addToCart()">Add to Cart</button>
+            <div class="loader" id="addLoader"></div>
+            <div id="addResponse"></div>
+        </div>
+        
+        <div class="section">
+            <h2>View Cart</h2>
+            <button onclick="getCart()">Refresh Cart</button>
+            <div class="loader" id="getLoader"></div>
+            <div id="cartContents"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Checkout</h2>
+            <button class="primary" onclick="checkout()">Proceed to Checkout</button>
+            <div class="loader" id="checkoutLoader"></div>
+            <div id="checkoutResponse"></div>
+        </div>
+        
+        <div id="errorMessage"></div>
+    </div>
+
+    <script>
+        // Base URL for API calls
+        const API_BASE_URL = 'http://localhost:8000/api/v1/om';
+        
+        // Function to show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Function to format JSON for display
+        function formatJson(json) {
+            return JSON.stringify(json, null, 2);
+        }
+        
+        // Function to add item to cart
+        async function addToCart() {
+            const productSku = document.getElementById('productSku').value;
+            const quantity = document.getElementById('quantity').value;
+            
+            if (!productSku || !quantity) {
+                showError('Please provide both Product SKU and Quantity');
+                return;
+            }
+            
+            const loader = document.getElementById('addLoader');
+            const responseDiv = document.getElementById('addResponse');
+            
+            loader.style.display = 'inline-block';
+            responseDiv.innerHTML = '';
+            
+            // Get existing session before making request
+            const existingSessionId = getSessionIdFromCookie();
+            console.log('Using existing session ID:', existingSessionId);
+            
+            try {
+                const fetchOptions = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include', // This ensures cookies are sent with the request
+                    body: JSON.stringify({
+                        product_sku: productSku,
+                        quantity: parseInt(quantity, 10)
+                    })
+                };
+                
+                const response = await fetch(`${API_BASE_URL}/cart/items/`, fetchOptions);
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Failed to add item to cart');
+                }
+                
+                // Extract and save session cookie if needed
+                const cookies = document.cookie;
+                console.log('Cookies after add to cart:', cookies);
+                
+                // Update session display
+                updateSessionDisplay();
+                
+                responseDiv.innerHTML = `
+                    <h3>Item Added Successfully</h3>
+                    <pre>${formatJson(data)}</pre>
+                `;
+                
+                // No automatic refresh to avoid creating a different session
+                // getCart(); // removed to prevent creating a new session
+                
+            } catch (error) {
+                showError(`Error adding item to cart: ${error.message}`);
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+        
+        // Function to get cart contents
+        async function getCart() {
+            const loader = document.getElementById('getLoader');
+            const cartDiv = document.getElementById('cartContents');
+            
+            loader.style.display = 'inline-block';
+            cartDiv.innerHTML = '';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/cart/`, {
+                    credentials: 'include' // Include cookies in the request
+                });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Failed to retrieve cart');
+                }
+                
+                if (data.results && data.results.length > 0) {
+                    let tableHTML = `
+                        <h3>Cart Contents</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>SKU</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    
+                    let total = 0;
+                    
+                    data.results.forEach(item => {
+                        const subtotal = (item.unit_price || 0) * item.quantity;
+                        total += subtotal;
+                        
+                        tableHTML += `
+                            <tr>
+                                <td>${item.product_name || 'N/A'}</td>
+                                <td>${item.product_sku}</td>
+                                <td>${item.quantity}</td>
+                                <td>$${(item.unit_price || 0).toFixed(2)}</td>
+                                <td>$${subtotal.toFixed(2)}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    tableHTML += `
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4" style="text-align: right;"><strong>Total:</strong></td>
+                                    <td><strong>$${total.toFixed(2)}</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        
+                        <div style="margin-top: 20px;">
+                            <h4>Raw Response:</h4>
+                            <pre>${formatJson(data)}</pre>
+                        </div>
+                    `;
+                    
+                    cartDiv.innerHTML = tableHTML;
+                } else {
+                    cartDiv.innerHTML = '<p>Your cart is empty</p>';
+                }
+                
+            } catch (error) {
+                showError(`Error retrieving cart: ${error.message}`);
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+        
+        // Function to checkout
+        async function checkout() {
+            const loader = document.getElementById('checkoutLoader');
+            const responseDiv = document.getElementById('checkoutResponse');
+            
+            loader.style.display = 'inline-block';
+            responseDiv.innerHTML = '';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/checkout/initiate-payment/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include', // Include cookies in the request
+                    body: JSON.stringify({
+                        // Add any additional checkout details here if needed
+                        payment_method: "CREDIT_CARD",
+                        shipping_method: "STANDARD"
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Checkout failed');
+                }
+                
+                responseDiv.innerHTML = `
+                    <h3>Checkout Successful</h3>
+                    <pre>${formatJson(data)}</pre>
+                `;
+                
+                // Refresh cart after checkout
+                getCart();
+                
+            } catch (error) {
+                showError(`Error during checkout: ${error.message}`);
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+        
+        // No automatic initialization to prevent unwanted API calls
+        
+        // Session management utilities
+        function getSessionIdFromCookie() {
+            const cookieValue = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('sessionid='));
+                
+            return cookieValue ? cookieValue.split('=')[1] : null;
+        }
+        
+        function updateSessionDisplay() {
+            const sessionId = getSessionIdFromCookie();
+            const sessionStatus = document.getElementById('sessionStatus');
+            
+            if (sessionId) {
+                sessionStatus.innerHTML = `<span style="color: #2ecc71;">✓ Session active</span> (${sessionId})`;
+                document.getElementById('sessionIdInput').value = sessionId;
+            } else {
+                sessionStatus.innerHTML = '<span style="color: #e74c3c;">✗ No session</span>';
+            }
+        }
+        
+        function setSessionId() {
+            const sessionId = document.getElementById('sessionIdInput').value;
+            if (sessionId) {
+                document.cookie = `sessionid=${sessionId}; path=/`;
+                updateSessionDisplay();
+                console.log('Session ID set to:', sessionId);
+            }
+        }
+        
+        // Add session ID input field
+        const sessionSection = document.createElement('div');
+        sessionSection.classList.add('section');
+        sessionSection.innerHTML = `
+            <h2>Session Management</h2>
+            <div class="field-group">
+                <p>Status: <span id="sessionStatus">Checking...</span></p>
+                <label for="sessionIdInput">Custom Session ID:</label>
+                <input type="text" id="sessionIdInput" placeholder="Enter a session ID">
+                <button onclick="setSessionId()">Set Session ID</button>
+            </div>
+            <div style="margin-top: 10px">
+                <button onclick="updateSessionDisplay()">Refresh Status</button>
+                <button onclick="clearSession()" class="danger">Clear Session</button>
+            </div>
+        `;
+        
+        // Insert the session section as the first section in the page
+        const firstSection = document.querySelector('.section');
+        document.querySelector('.container').insertBefore(sessionSection, firstSection);
+        
+        // Add instructions for proper usage
+        const instructionDiv = document.createElement('div');
+        instructionDiv.classList.add('section');
+        instructionDiv.innerHTML = `
+            <h2>Instructions</h2>
+            <ol>
+                <li>Click "Add to Cart" to create a session and add an item</li>
+                <li>The same session will be maintained for all operations</li>
+                <li>You can view your cart by clicking "Refresh Cart"</li>
+                <li>You can manually set a session ID if needed</li>
+            </ol>
+            <p><strong>Note:</strong> No automatic calls are made when loading this page. You must click buttons to interact with the API.</p>
+        `;
+        document.querySelector('.container').insertBefore(instructionDiv, firstSection);
+        
+        function clearSession() {
+            document.cookie = 'sessionid=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+            updateSessionDisplay();
+            console.log('Session cleared');
+        }
+        
+        // Create a wrapper for fetch that ensures consistent session handling
+        const originalFetch = window.fetch;
+        window.fetch = function() {
+            const url = arguments[0];
+            let options = arguments[1] || {};
+            
+            // Always ensure credentials are included
+            options.credentials = 'include';
+            
+            // Always include the session cookie if it exists
+            const sessionId = getSessionIdFromCookie();
+            if (sessionId && !options.headers) {
+                options.headers = {};
+            }
+            
+            console.log('Fetch URL:', url);
+            console.log('Fetch options:', options);
+            console.log('Current cookies:', document.cookie);
+            
+            // Make the fetch request
+            const fetchPromise = originalFetch.call(this, url, options);
+            
+            // After fetch completes, update session display
+            fetchPromise.then(response => {
+                // Check if response includes new cookies
+                setTimeout(updateSessionDisplay, 100); // Slight delay to ensure cookies are set
+                return response;
+            }).catch(err => {
+                console.error('Fetch error:', err);
+                throw err;
+            });
+            
+            return fetchPromise;
+        };
+    </script>
+</body>
+</html>
