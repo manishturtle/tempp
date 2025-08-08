@@ -1,0 +1,951 @@
+Skip to main content
+[Stack Overflow](https://stackoverflow.com)
+1. 
+						[About](https://stackoverflow.co/)
+
+2. 
+
+							Products
+
+
+3. 
+                        [OverflowAI](https://stackoverflow.co/teams/ai/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=top-nav-bar&utm_content=overflowai)
+
+[About](https://stackoverflow.co/)
+[OverflowAI](https://stackoverflow.co/teams/ai/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=top-nav-bar&utm_content=overflowai)
+1. 
+						[Stack Overflow for Teams
+							Where developers & technologists share private knowledge with coworkers](https://stackoverflow.co/teams/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=top-nav&utm_content=stack-overflow-for-teams)
+
+2. 
+						[Advertising & Talent
+							Reach devs & technologists worldwide about your product, service or employer brand](https://stackoverflow.co/advertising/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=top-nav&utm_content=stack-overflow-advertising)
+
+3. 
+						[OverflowAI
+							GenAI features for Teams](https://stackoverflow.co/teams/ai/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=top-nav&utm_content=overflow-ai)
+
+4. 
+						[OverflowAPI
+							Train & fine-tune LLMs](https://stackoverflow.co/api-solutions/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=top-nav&utm_content=overflow-api)
+
+5. 
+						[Labs
+							The future of collective knowledge sharing](https://stackoverflow.co/labs/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=top-nav&utm_content=labs)
+
+6. 
+						About the company
+
+						[Visit the blog](https://stackoverflow.blog/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=top-nav&utm_content=blog)
+
+[Stack Overflow for Teams
+							Where developers & technologists share private knowledge with coworkers](https://stackoverflow.co/teams/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=top-nav&utm_content=stack-overflow-for-teams)
+[Advertising & Talent
+							Reach devs & technologists worldwide about your product, service or employer brand](https://stackoverflow.co/advertising/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=top-nav&utm_content=stack-overflow-advertising)
+[OverflowAI
+							GenAI features for Teams](https://stackoverflow.co/teams/ai/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=top-nav&utm_content=overflow-ai)
+[OverflowAPI
+							Train & fine-tune LLMs](https://stackoverflow.co/api-solutions/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=top-nav&utm_content=overflow-api)
+[Labs
+							The future of collective knowledge sharing](https://stackoverflow.co/labs/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=top-nav&utm_content=labs)
+[About the company](https://stackoverflow.co/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=top-nav&utm_content=about-the-company)
+[Visit the blog](https://stackoverflow.blog/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=top-nav&utm_content=blog)
+1. 
+
+
+
+
+
+                current community
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            Stack Overflow
+
+
+
+
+
+            help
+            chat
+
+
+
+
+
+
+
+
+
+
+
+            Meta Stack Overflow
+
+
+
+
+
+
+
+
+
+your communities            
+
+
+
+
+
+Sign up or log in to customize your list.                
+
+
+
+            more stack exchange communities
+
+            [company blog](https://stackoverflow.blog)
+
+
+
+
+
+
+
+2. 
+
+
+
+
+            Stack Overflow
+
+
+
+
+
+            help
+            [chat](https://chat.stackoverflow.com/?tab=site&host=stackoverflow.com)
+
+
+
+3. 
+
+
+
+
+                            [Meta Stack Overflow](https://meta.stackoverflow.com)
+
+
+4. 
+5. 
+                            [Log in](https://stackoverflow.com/users/login?ssrc=head&returnurl=https%3a%2f%2fstackoverflow.com%2fquestions%2f77443436%2fproperty-isloading-does-not-exist-on-type-usemutationresultaxiosresponseany)
+
+6. [Sign up](https://stackoverflow.com/users/signup?ssrc=head&returnurl=https%3a%2f%2fstackoverflow.com%2fquestions%2f77443436%2fproperty-isloading-does-not-exist-on-type-usemutationresultaxiosresponseany)
+
+### [current community](https://stackoverflow.com)
+[current community](https://stackoverflow.com)
+- 
+
+
+
+
+            Stack Overflow
+
+
+
+
+
+            help
+            [chat](https://chat.stackoverflow.com/?tab=site&host=stackoverflow.com)
+
+
+
+- 
+
+
+
+
+                            [Meta Stack Overflow](https://meta.stackoverflow.com)
+
+
+[Stack Overflow](https://stackoverflow.com)
+[help](https://stackoverflow.com/help)
+[chat](https://chat.stackoverflow.com/?tab=site&host=stackoverflow.com)
+[Meta Stack Overflow](https://meta.stackoverflow.com)
+
+### your communities
+[Sign up](https://stackoverflow.com/users/signup?ssrc=site_switcher&returnurl=https%3a%2f%2fstackoverflow.com%2fquestions%2f77443436%2fproperty-isloading-does-not-exist-on-type-usemutationresultaxiosresponseany)
+[log in](https://stackoverflow.com/users/login?ssrc=site_switcher&returnurl=https%3a%2f%2fstackoverflow.com%2fquestions%2f77443436%2fproperty-isloading-does-not-exist-on-type-usemutationresultaxiosresponseany)
+
+### [more stack exchange communities](https://stackexchange.com/sites)
+
+[more stack exchange communities](https://stackexchange.com/sites)
+[company blog](https://stackoverflow.blog)
+[Log in](https://stackoverflow.com/users/login?ssrc=head&returnurl=https%3a%2f%2fstackoverflow.com%2fquestions%2f77443436%2fproperty-isloading-does-not-exist-on-type-usemutationresultaxiosresponseany)
+[Sign up](https://stackoverflow.com/users/signup?ssrc=head&returnurl=https%3a%2f%2fstackoverflow.com%2fquestions%2f77443436%2fproperty-isloading-does-not-exist-on-type-usemutationresultaxiosresponseany)
+1. 
+
+
+
+
+
+
+
+
+                Home
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                Questions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                Tags
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                Discussions
+Labs
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                Chat
+
+
+
+
+
+
+
+        $('.js-disable-chat-new-link').on("click", function(e) {
+        StackExchange.helpers.toggleAccountPreferenceFlags(262144, true);
+        return true;
+        });
+
+
+
+
+
+
+
+
+
+
+                Users
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                Companies
+
+
+
+
+
+
+
+
+
+
+
+                                        Collectives
+
+
+
+
+
+
+
+
+
+                                        Communities for your favorite technologies.  [Explore all Collectives](https://stackoverflow.com/collectives-all)
+
+
+
+
+2. 
+
+
+    [Home](https://stackoverflow.com/)
+
+3. 
+
+
+    [Questions](https://stackoverflow.com/questions)
+
+4. 
+
+
+    [Tags](https://stackoverflow.com/tags)
+
+5. 
+6. 
+
+
+    [Discussions
+Labs](https://stackoverflow.com/beta/discussions)
+
+7. 
+
+
+    [Chat](https://chat.stackoverflow.com/?tab=all&sort=active)
+
+8. 
+
+
+    [Users](https://stackoverflow.com/users)
+
+9. 
+10. 
+
+
+    [Companies](https://stackoverflow.com/jobs/companies?so_medium=stackoverflow&so_source=SiteNav)
+
+11. 
+
+                                    [Collectives](javascript:void(0))
+
+
+
+12. 
+
+                                        Communities for your favorite technologies.  [Explore all Collectives](https://stackoverflow.com/collectives-all)
+
+
+13. 
+
+
+    Teams
+
+
+
+
+            Ask questions, find answers and collaborate at work with Stack Overflow for Teams.
+
+        Try Teams for free
+        [Explore Teams](https://stackoverflow.co/teams/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=side-bar&utm_content=explore-teams)
+
+
+14. 
+
+        [Teams](javascript:void(0))
+
+15. 
+
+            Ask questions, find answers and collaborate at work with Stack Overflow for Teams.
+            [Explore Teams](https://stackoverflow.co/teams/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=side-bar&utm_content=explore-teams-compact)
+
+
+1. 
+
+
+    [Home](https://stackoverflow.com/)
+
+2. 
+
+
+    [Questions](https://stackoverflow.com/questions)
+
+3. 
+
+
+    [Tags](https://stackoverflow.com/tags)
+
+4. 
+5. 
+
+
+    [Discussions
+Labs](https://stackoverflow.com/beta/discussions)
+
+6. 
+
+
+    [Chat](https://chat.stackoverflow.com/?tab=all&sort=active)
+
+7. 
+
+
+    [Users](https://stackoverflow.com/users)
+
+8. 
+9. 
+
+
+    [Companies](https://stackoverflow.com/jobs/companies?so_medium=stackoverflow&so_source=SiteNav)
+
+10. 
+
+                                    [Collectives](javascript:void(0))
+
+
+
+11. 
+
+                                        Communities for your favorite technologies.  [Explore all Collectives](https://stackoverflow.com/collectives-all)
+
+
+[Home](https://stackoverflow.com/)
+[Questions](https://stackoverflow.com/questions)
+[Tags](https://stackoverflow.com/tags)
+[Discussions
+Labs](https://stackoverflow.com/beta/discussions)
+[Chat](https://chat.stackoverflow.com/?tab=all&sort=active)
+[Users](https://stackoverflow.com/users)
+[Companies](https://stackoverflow.com/jobs/companies?so_medium=stackoverflow&so_source=SiteNav)
+[Collectives](javascript:void(0))
+Communities for your favorite technologies.  [Explore all Collectives](https://stackoverflow.com/collectives-all)
+Ask questions, find answers and collaborate at work with Stack Overflow for Teams.
+[Try Teams for free](https://stackoverflowteams.com/teams/create/free/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=side-bar&utm_content=explore-teams)
+[Explore Teams](https://stackoverflow.co/teams/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=side-bar&utm_content=explore-teams)
+[Teams](javascript:void(0))
+Ask questions, find answers and collaborate at work with Stack Overflow for Teams.
+            [Explore Teams](https://stackoverflow.co/teams/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=side-bar&utm_content=explore-teams-compact)
+
+### [more stack exchange communities](https://stackexchange.com/sites)
+
+##### Collectives™ on Stack Overflow
+Find centralized, trusted content and collaborate around the technologies you use most.
+[Learn more about Collectives](https://stackoverflow.com/collectives)
+Teams
+Q&A for work
+Connect and share knowledge within a single location that is structured and easy to search.
+[Learn more about Teams](https://stackoverflow.co/teams/)
+
+# [Property 'isLoading' does not exist on type 'UseMutationResult<AxiosResponse<any, any>, Error, void, unknown>'.ts(2339)](https://stackoverflow.com/questions/77443436/property-isloading-does-not-exist-on-type-usemutationresultaxiosresponseany)
+
+[Property 'isLoading' does not exist on type 'UseMutationResult<AxiosResponse<any, any>, Error, void, unknown>'.ts(2339)](https://stackoverflow.com/questions/77443436/property-isloading-does-not-exist-on-type-usemutationresultaxiosresponseany)
+[Ask Question](https://stackoverflow.com/questions/ask)
+[1 year, 4 months ago](https://stackoverflow.com/questions/77443436/property-isloading-does-not-exist-on-type-usemutationresultaxiosresponseany?lastactivity)
+I'm trying to create a delete function wherein It will show a loading state using useMutate of tanstackquery, but the problem is when I delete the button, it doesn't show the loading state even though I change the network speed.
+
+```
+loading state
+```
+
+
+```
+useMutate
+```
+
+
+```
+const ButtonAction = ({ id }: ButtonActionProps) => {
+  const router = useRouter();
+
+  const { mutate: deletePost, isLoading } = useMutation({
+    mutationFn: () => {
+      return axios.delete(`/api/posts/${id}`);
+    },
+    onError: (error) => {
+      console.error(error);
+    },
+
+    onSuccess: () => {
+      router.push("/");
+      router.refresh();
+    },
+  });
+
+  
+
+  return (
+    <div>
+      <Link href="/edit/1" className="btn mr-2">
+        {" "}
+        <Pencil /> Edit
+      </Link>
+      <button onClick={() => deletePost()} className="btn btn-error">
+        {" "}
+        {isLoading && (
+          <span className="loading loading-spinner loaddeing-xs"></span>
+        )}
+        {isLoading ? (
+          "Loading..."
+        ) : (
+          <>
+            <Trash />
+            Delete
+          </>
+        )}
+      </button>
+    </div>
+  );
+};
+
+export default ButtonAction;
+```
+
+
+```
+const ButtonAction = ({ id }: ButtonActionProps) => {
+  const router = useRouter();
+
+  const { mutate: deletePost, isLoading } = useMutation({
+    mutationFn: () => {
+      return axios.delete(`/api/posts/${id}`);
+    },
+    onError: (error) => {
+      console.error(error);
+    },
+
+    onSuccess: () => {
+      router.push("/");
+      router.refresh();
+    },
+  });
+
+  
+
+  return (
+    <div>
+      <Link href="/edit/1" className="btn mr-2">
+        {" "}
+        <Pencil /> Edit
+      </Link>
+      <button onClick={() => deletePost()} className="btn btn-error">
+        {" "}
+        {isLoading && (
+          <span className="loading loading-spinner loaddeing-xs"></span>
+        )}
+        {isLoading ? (
+          "Loading..."
+        ) : (
+          <>
+            <Trash />
+            Delete
+          </>
+        )}
+      </button>
+    </div>
+  );
+};
+
+export default ButtonAction;
+```
+
+- [reactjs](https://stackoverflow.com/questions/tagged/reactjs)
+- [typescript](https://stackoverflow.com/questions/tagged/typescript)
+- [next.js](https://stackoverflow.com/questions/tagged/next.js)
+[reactjs](https://stackoverflow.com/questions/tagged/reactjs)
+[typescript](https://stackoverflow.com/questions/tagged/typescript)
+[next.js](https://stackoverflow.com/questions/tagged/next.js)
+[Share](https://stackoverflow.com/q/77443436)
+[Improve this question](https://stackoverflow.com/posts/77443436/edit)
+[Stykgwar](https://stackoverflow.com/users/20088885/stykgwar)
+Add a comment
+
+## 2 Answers
+2
+[Reset to default](https://stackoverflow.com/questions/77443436/property-isloading-does-not-exist-on-type-usemutationresultaxiosresponseany?answertab=scoredesc)
+I am using tanstack v "5.8.1", and isLoading is not an available property for this version. try using isPending instead.
+[Share](https://stackoverflow.com/a/77455290)
+[Improve this answer](https://stackoverflow.com/posts/77455290/edit)
+[Maria](https://stackoverflow.com/users/3508207/maria)
+Add a comment
+it is easy to use isPending as an alternative or isLoading
+[Share](https://stackoverflow.com/a/77453597)
+[Improve this answer](https://stackoverflow.com/posts/77453597/edit)
+[Doge_dev](https://stackoverflow.com/users/22773439/doge-dev)
+Add a comment
+
+## Your Answer
+Reminder: Answers generated by AI tools are not allowed due to Stack Overflow's [artificial intelligence policy](https://stackoverflow.com/help/gen-ai-policy)
+Thanks for contributing an answer to Stack Overflow!
+- Please be sure to answer the question. Provide details and share your research!
+But avoid …
+- Asking for help, clarification, or responding to other answers.
+- Making statements based on opinion; back them up with references or personal experience.
+To learn more, see our [tips on writing great answers](https://stackoverflow.com/help/how-to-answer).
+
+### Sign up or [log in](https://stackoverflow.com/users/login?ssrc=question_page&returnurl=https%3a%2f%2fstackoverflow.com%2fquestions%2f77443436%2fproperty-isloading-does-not-exist-on-type-usemutationresultaxiosresponseany%23new-answer)
+
+[log in](https://stackoverflow.com/users/login?ssrc=question_page&returnurl=https%3a%2f%2fstackoverflow.com%2fquestions%2f77443436%2fproperty-isloading-does-not-exist-on-type-usemutationresultaxiosresponseany%23new-answer)
+
+### Post as a guest
+
+Required, but never shown
+By clicking “Post Your Answer”, you agree to our terms of service and acknowledge you have read our [privacy policy](https://stackoverflow.com/legal/privacy-policy).
+Start asking to get answers
+Find the answer to your question by asking.
+[Ask question](https://stackoverflow.com/questions/ask)
+Explore related questions
+- [reactjs](https://stackoverflow.com/questions/tagged/reactjs)
+- [typescript](https://stackoverflow.com/questions/tagged/typescript)
+- [next.js](https://stackoverflow.com/questions/tagged/next.js)
+[reactjs](https://stackoverflow.com/questions/tagged/reactjs)
+[typescript](https://stackoverflow.com/questions/tagged/typescript)
+[next.js](https://stackoverflow.com/questions/tagged/next.js)
+See similar questions with these tags.
+- 
+                            The Overflow Blog
+
+- 
+
+
+
+                [“Are AI agents ready for the enterprise?”](https://stackoverflow.blog/2025/03/28/are-ai-agents-ready-for-the-enterprise/)
+
+
+- 
+
+
+
+                [Boots on the ground: Holistic AI and Audioshake at HumanX](https://stackoverflow.blog/2025/04/01/boots-on-the-ground-holistic-ai-and-audioshake-at-humanx/)
+
+
+- 
+                            Featured on Meta
+
+- 
+
+
+
+                [Experimenting with a new experiment opt-out option](https://meta.stackexchange.com/questions/407547/experimenting-with-a-new-experiment-opt-out-option)
+
+
+- 
+
+
+
+                [Changes to reporting for the [status-review] escalation process](https://meta.stackexchange.com/questions/407927/changes-to-reporting-for-the-status-review-escalation-process)
+
+
+- 
+
+
+
+                [Policy: Generative AI (e.g., ChatGPT) is banned](https://meta.stackoverflow.com/questions/421831/policy-generative-ai-e-g-chatgpt-is-banned)
+
+
+[“Are AI agents ready for the enterprise?”](https://stackoverflow.blog/2025/03/28/are-ai-agents-ready-for-the-enterprise/)
+[Boots on the ground: Holistic AI and Audioshake at HumanX](https://stackoverflow.blog/2025/04/01/boots-on-the-ground-holistic-ai-and-audioshake-at-humanx/)
+[Experimenting with a new experiment opt-out option](https://meta.stackexchange.com/questions/407547/experimenting-with-a-new-experiment-opt-out-option)
+[Changes to reporting for the [status-review] escalation process](https://meta.stackexchange.com/questions/407927/changes-to-reporting-for-the-status-review-escalation-process)
+[Policy: Generative AI (e.g., ChatGPT) is banned](https://meta.stackoverflow.com/questions/421831/policy-generative-ai-e-g-chatgpt-is-banned)
+
+#### Related
+[1113](https://stackoverflow.com/q/41292559)
+[Could not find a declaration file for module 'module-name'. '/path/to/module-name.js' implicitly has an 'any' type](https://stackoverflow.com/questions/41292559/could-not-find-a-declaration-file-for-module-module-name-path-to-module-nam)
+[493](https://stackoverflow.com/q/12989741)
+[The property 'value' does not exist on value of type 'HTMLElement'](https://stackoverflow.com/questions/12989741/the-property-value-does-not-exist-on-value-of-type-htmlelement)
+[452](https://stackoverflow.com/q/42066421)
+[Property 'value' does not exist on type 'EventTarget'](https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget)
+[888](https://stackoverflow.com/q/52423842)
+[What is "not assignable to parameter of type never" error in TypeScript?](https://stackoverflow.com/questions/52423842/what-is-not-assignable-to-parameter-of-type-never-error-in-typescript)
+[325](https://stackoverflow.com/q/47561848)
+[Property 'value' does not exist on type 'Readonly<{}>'](https://stackoverflow.com/questions/47561848/property-value-does-not-exist-on-type-readonly)
+[733](https://stackoverflow.com/q/29689966)
+[How to define type for a function callback (as any function type, not universal any) used in a method parameter](https://stackoverflow.com/questions/29689966/how-to-define-type-for-a-function-callback-as-any-function-type-not-universal)
+[359](https://stackoverflow.com/q/44147937)
+['Property does not exist on type 'never'](https://stackoverflow.com/questions/44147937/property-does-not-exist-on-type-never)
+[303](https://stackoverflow.com/q/56457935)
+[TypeScript error: Property 'X' does not exist on type 'Window'](https://stackoverflow.com/questions/56457935/typescript-error-property-x-does-not-exist-on-type-window)
+[423](https://stackoverflow.com/q/31815633)
+
+### Post as a guest
+
+[What does the error "JSX element type '...' does not have any construct or call signatures" mean?](https://stackoverflow.com/questions/31815633/what-does-the-error-jsx-element-type-does-not-have-any-construct-or-call)
+
+#### [Hot Network Questions](https://stackexchange.com/questions?tab=hot)
+[Hot Network Questions](https://stackexchange.com/questions?tab=hot)
+- 
+                [My 1999 Chevy suburban has a battery issue. One of the batteries is boiling hot and smells like it's burning up](https://mechanics.stackexchange.com/questions/98821/my-1999-chevy-suburban-has-a-battery-issue-one-of-the-batteries-is-boiling-hot)
+
+
+- 
+                [A greedy and a generous Brit](https://puzzling.stackexchange.com/questions/131226/a-greedy-and-a-generous-brit)
+
+
+- 
+                [How plausible is this anecdote about "toggling in" an operating system?](https://retrocomputing.stackexchange.com/questions/31497/how-plausible-is-this-anecdote-about-toggling-in-an-operating-system)
+
+
+- 
+                [Are network interface controllers modems?](https://superuser.com/questions/1889194/are-network-interface-controllers-modems)
+
+
+- 
+                [What is the meaning of εἰς in 1Cor 8:6 variously translated in, into, unto, for?](https://hermeneutics.stackexchange.com/questions/102846/what-is-the-meaning-of-%ce%b5%e1%bc%b0%cf%82-in-1cor-86-variously-translated-in-into-unto-for)
+
+
+- 
+                [Name the city. Without calling the people animals.](https://puzzling.stackexchange.com/questions/131225/name-the-city-without-calling-the-people-animals)
+
+
+- 
+                [To what extent can you reconstruct finite groups from their representations?](https://mathoverflow.net/questions/490335/to-what-extent-can-you-reconstruct-finite-groups-from-their-representations)
+
+
+- 
+                [Varying area values for the same shapefile in different QGIS Projects](https://gis.stackexchange.com/questions/491555/varying-area-values-for-the-same-shapefile-in-different-qgis-projects)
+
+
+- 
+                [Did you get it? ;)](https://puzzling.stackexchange.com/questions/131218/did-you-get-it)
+
+
+- 
+                [What instruments did the first dashboard include?](https://history.stackexchange.com/questions/77622/what-instruments-did-the-first-dashboard-include)
+
+
+- 
+                [LEAN: Why is Classical Logic Needed to Prove this?](https://proofassistants.stackexchange.com/questions/4877/lean-why-is-classical-logic-needed-to-prove-this)
+
+
+- 
+                [Constantine’s vision and Love your enemies](https://christianity.stackexchange.com/questions/105695/constantine-s-vision-and-love-your-enemies)
+
+
+- 
+                [Why do my cards suddenly look worn out?](https://gaming.stackexchange.com/questions/411716/why-do-my-cards-suddenly-look-worn-out)
+
+
+- 
+                [Old Sci Fi movie with woman android melting](https://scifi.stackexchange.com/questions/295825/old-sci-fi-movie-with-woman-android-melting)
+
+
+- 
+                [Is there any problem with too high of precision?](https://stats.stackexchange.com/questions/663351/is-there-any-problem-with-too-high-of-precision)
+
+
+- 
+                [Is there a precedent, in France, for barring a politician from running for office due to (political) fraud or embezzlement?](https://politics.stackexchange.com/questions/91207/is-there-a-precedent-in-france-for-barring-a-politician-from-running-for-offic)
+
+
+- 
+                [How to extend cylinders to a tilted plane](https://blender.stackexchange.com/questions/333023/how-to-extend-cylinders-to-a-tilted-plane)
+
+
+- 
+                [Were there any games running at high refresh rates such as 90 and 120 Hz on computers and consoles of the 80s and 90s?](https://retrocomputing.stackexchange.com/questions/31506/were-there-any-games-running-at-high-refresh-rates-such-as-90-and-120-hz-on-comp)
+
+
+- 
+                [What's the point of rejecting direct negotiations but accepting indirect negotiations?](https://politics.stackexchange.com/questions/91194/whats-the-point-of-rejecting-direct-negotiations-but-accepting-indirect-negotia)
+
+
+- 
+                [Prorating Social Security on state taxes](https://money.stackexchange.com/questions/165680/prorating-social-security-on-state-taxes)
+
+
+- 
+                [Can non-const data be accessed through a const pointer in a union?](https://stackoverflow.com/questions/79547584/can-non-const-data-be-accessed-through-a-const-pointer-in-a-union)
+
+
+-
+
+### Post as a guest
+
+[Employer wants something unethical, can you refuse even during the notice period?](https://law.stackexchange.com/questions/108114/employer-wants-something-unethical-can-you-refuse-even-during-the-notice-period)
+
+
+- 
+                [Advanced Green's function for the classical forced harmonic oscillator](https://physics.stackexchange.com/questions/846648/advanced-greens-function-for-the-classical-forced-harmonic-oscillator)
+
+
+- 
+                [Why don't online chess platforms allow illegal moves like OTB chess?](https://chess.stackexchange.com/questions/46823/why-dont-online-chess-platforms-allow-illegal-moves-like-otb-chess)
+
+
+[My 1999 Chevy suburban has a battery issue. One of the batteries is boiling hot and smells like it's burning up](https://mechanics.stackexchange.com/questions/98821/my-1999-chevy-suburban-has-a-battery-issue-one-of-the-batteries-is-boiling-hot)
+[A greedy and a generous Brit](https://puzzling.stackexchange.com/questions/131226/a-greedy-and-a-generous-brit)
+[How plausible is this anecdote about "toggling in" an operating system?](https://retrocomputing.stackexchange.com/questions/31497/how-plausible-is-this-anecdote-about-toggling-in-an-operating-system)
+[Are network interface controllers modems?](https://superuser.com/questions/1889194/are-network-interface-controllers-modems)
+[What is the meaning of εἰς in 1Cor 8:6 variously translated in, into, unto, for?](https://hermeneutics.stackexchange.com/questions/102846/what-is-the-meaning-of-%ce%b5%e1%bc%b0%cf%82-in-1cor-86-variously-translated-in-into-unto-for)
+[Name the city. Without calling the people animals.](https://puzzling.stackexchange.com/questions/131225/name-the-city-without-calling-the-people-animals)
+[To what extent can you reconstruct finite groups from their representations?](https://mathoverflow.net/questions/490335/to-what-extent-can-you-reconstruct-finite-groups-from-their-representations)
+[Varying area values for the same shapefile in different QGIS Projects](https://gis.stackexchange.com/questions/491555/varying-area-values-for-the-same-shapefile-in-different-qgis-projects)
+[Did you get it? ;)](https://puzzling.stackexchange.com/questions/131218/did-you-get-it)
+[What instruments did the first dashboard include?](https://history.stackexchange.com/questions/77622/what-instruments-did-the-first-dashboard-include)
+[LEAN: Why is Classical Logic Needed to Prove this?](https://proofassistants.stackexchange.com/questions/4877/lean-why-is-classical-logic-needed-to-prove-this)
+[Constantine’s vision and Love your enemies](https://christianity.stackexchange.com/questions/105695/constantine-s-vision-and-love-your-enemies)
+[Why do my cards suddenly look worn out?](https://gaming.stackexchange.com/questions/411716/why-do-my-cards-suddenly-look-worn-out)
+[Old Sci Fi movie with woman android melting](https://scifi.stackexchange.com/questions/295825/old-sci-fi-movie-with-woman-android-melting)
+[Is there any problem with too high of precision?](https://stats.stackexchange.com/questions/663351/is-there-any-problem-with-too-high-of-precision)
+[Is there a precedent, in France, for barring a politician from running for office due to (political) fraud or embezzlement?](https://politics.stackexchange.com/questions/91207/is-there-a-precedent-in-france-for-barring-a-politician-from-running-for-offic)
+[How to extend cylinders to a tilted plane](https://blender.stackexchange.com/questions/333023/how-to-extend-cylinders-to-a-tilted-plane)
+[Were there any games running at high refresh rates such as 90 and 120 Hz on computers and consoles of the 80s and 90s?](https://retrocomputing.stackexchange.com/questions/31506/were-there-any-games-running-at-high-refresh-rates-such-as-90-and-120-hz-on-comp)
+[What's the point of rejecting direct negotiations but accepting indirect negotiations?](https://politics.stackexchange.com/questions/91194/whats-the-point-of-rejecting-direct-negotiations-but-accepting-indirect-negotia)
+[Prorating Social Security on state taxes](https://money.stackexchange.com/questions/165680/prorating-social-security-on-state-taxes)
+[Can non-const data be accessed through a const pointer in a union?](https://stackoverflow.com/questions/79547584/can-non-const-data-be-accessed-through-a-const-pointer-in-a-union)
+[Employer wants something unethical, can you refuse even during the notice period?](https://law.stackexchange.com/questions/108114/employer-wants-something-unethical-can-you-refuse-even-during-the-notice-period)
+
+### Post as a guest
+
+[Advanced Green's function for the classical forced harmonic oscillator](https://physics.stackexchange.com/questions/846648/advanced-greens-function-for-the-classical-forced-harmonic-oscillator)
+[Why don't online chess platforms allow illegal moves like OTB chess?](https://chess.stackexchange.com/questions/46823/why-dont-online-chess-platforms-allow-illegal-moves-like-otb-chess)
+more hot questions
+[Question feed](https://stackoverflow.com/feeds/question/77443436)
+
+# Subscribe to RSS
+
+To subscribe to this RSS feed, copy and paste this URL into your RSS reader.
+
+##### [Stack Overflow](https://stackoverflow.com)
+[Stack Overflow](https://stackoverflow.com)
+- [Questions](https://stackoverflow.com/questions)
+- [Help](https://stackoverflow.com/help)
+- [Chat](https://chat.stackoverflow.com/?tab=site&host=stackoverflow.com)
+[Questions](https://stackoverflow.com/questions)
+[Help](https://stackoverflow.com/help)
+[Chat](https://chat.stackoverflow.com/?tab=site&host=stackoverflow.com)
+
+##### [Products](https://stackoverflow.co/)
+[Products](https://stackoverflow.co/)
+- [Teams](https://stackoverflow.co/teams/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=footer&utm_content=teams)
+- [Advertising](https://stackoverflow.co/advertising/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=footer&utm_content=advertising)
+- [Talent](https://stackoverflow.co/advertising/employer-branding/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=footer&utm_content=talent)
+[Teams](https://stackoverflow.co/teams/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=footer&utm_content=teams)
+[Advertising](https://stackoverflow.co/advertising/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=footer&utm_content=advertising)
+[Talent](https://stackoverflow.co/advertising/employer-branding/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=footer&utm_content=talent)
+
+##### [Company](https://stackoverflow.co/)
+[Company](https://stackoverflow.co/)
+- [About](https://stackoverflow.co/)
+- [Press](https://stackoverflow.co/company/press/)
+- [Work Here](https://stackoverflow.co/company/work-here/)
+- [Legal](https://stackoverflow.com/legal)
+- [Privacy Policy](https://stackoverflow.com/legal/privacy-policy)
+- [Terms of Service](https://stackoverflow.com/legal/terms-of-service/public)
+- [Contact Us](https://stackoverflow.com/contact)
+- 
+Cookie Settings        
+- [Cookie Policy](https://stackoverflow.com/legal/cookie-policy)
+[About](https://stackoverflow.co/)
+[Press](https://stackoverflow.co/company/press/)
+[Work Here](https://stackoverflow.co/company/work-here/)
+[Legal](https://stackoverflow.com/legal)
+[Privacy Policy](https://stackoverflow.com/legal/privacy-policy)
+[Terms of Service](https://stackoverflow.com/legal/terms-of-service/public)
+[Contact Us](https://stackoverflow.com/contact)
+[Cookie Policy](https://stackoverflow.com/legal/cookie-policy)
+
+##### [Stack Exchange Network](https://stackexchange.com)
+[Stack Exchange Network](https://stackexchange.com)
+- 
+                                [Technology](https://stackexchange.com/sites)
+
+- 
+                                [Culture & recreation](https://stackexchange.com/sites)
+
+- 
+                                [Life & arts](https://stackexchange.com/sites)
+
+- 
+                                [Science](https://stackexchange.com/sites)
+
+- 
+                                [Professional](https://stackexchange.com/sites)
+
+- 
+                                [Business](https://stackexchange.com/sites)
+
+- 
+                                [API](https://api.stackexchange.com/)
+
+- 
+                                [Data](https://data.stackexchange.com/)
+
+[Technology](https://stackexchange.com/sites)
+[Culture & recreation](https://stackexchange.com/sites)
+[Life & arts](https://stackexchange.com/sites)
+[Science](https://stackexchange.com/sites)
+[Professional](https://stackexchange.com/sites)
+[Business](https://stackexchange.com/sites)
+[API](https://api.stackexchange.com/)
+[Data](https://data.stackexchange.com/)
+- [Blog](https://stackoverflow.blog?blb=1)
+- [Facebook](https://www.facebook.com/officialstackoverflow/)
+- [Twitter](https://twitter.com/stackoverflow)
+- [LinkedIn](https://linkedin.com/company/stack-overflow)
+- [Instagram](https://www.instagram.com/thestackoverflow)
+[Blog](https://stackoverflow.blog?blb=1)
+[Facebook](https://www.facebook.com/officialstackoverflow/)
+[Twitter](https://twitter.com/stackoverflow)
+[LinkedIn](https://linkedin.com/company/stack-overflow)
+[Instagram](https://www.instagram.com/thestackoverflow)
+Site design / logo © 2025 Stack Exchange Inc; 
+                    user contributions licensed under 
+                    [CC BY-SA](https://stackoverflow.com/help/licensing)
+                    . 
+                    rev 2025.4.1.24628

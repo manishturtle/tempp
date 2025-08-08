@@ -1,71 +1,36 @@
-# ERP Backend
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-A multi-tenant SaaS ERP system built with Django 4.2 and Django REST Framework.
+## Getting Started
 
-## Project Structure
+First, run the development server:
 
-- `core/`: Core functionalities, settings, base models, utilities
-- `users/`: Custom user management and authentication
-- `tenants/`: Multi-tenancy management
-- `inventory/`: Inventory Management module
-- `products/`: Product Management module
-
-## Tech Stack
-
-- Django 4.2
-- Django REST Framework
-- PostgreSQL 17
-- Python-dotenv
-- dj-database-url
-
-## Setup
-
-1. Create a virtual environment:
 ```bash
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-.\venv\Scripts\activate  # Windows
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-3. Configure environment variables:
-Create a `.env` file in the project root with the following variables:
-```
-DEBUG=True
-SECRET_KEY=your-secret-key-here
-DATABASE_URL=postgres://user:password@localhost:5432/erp_backend
-ALLOWED_HOSTS=localhost,127.0.0.1
-TIME_ZONE=UTC
-```
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-4. Run migrations:
-```bash
-python manage.py migrate
-```
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-5. Create a superuser:
-```bash
-python manage.py createsuperuser
-```
+## Learn More
 
-6. Run the development server:
-```bash
-python manage.py runserver
-```
+To learn more about Next.js, take a look at the following resources:
 
-## Development
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-The project follows a modular architecture with separate apps for different functionalities:
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-- Core app handles base functionality
-- Users app manages authentication and user management
-- Tenants app handles multi-tenancy
-- Inventory and Products apps are placeholders for their respective modules
+## Deploy on Vercel
 
-## API Documentation
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-API documentation will be available at `/api/docs/` once the project is running.
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

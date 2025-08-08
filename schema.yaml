@@ -1,7 +1,0 @@
-openapi: 3.0.3
-info:
-  title: Qrosity API
-  version: 1.0.0
-  description: API documentation for Qrosity ERP System
-paths: {}
-components: {}

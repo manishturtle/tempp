@@ -1,0 +1,22 @@
+{
+  "app": {
+    "title": "Qrosity",
+    "menu": {
+      "profile": "Perfil",
+      "settings": "Configuración",
+      "logout": "Cerrar sesión"
+    },
+    "theme": {
+      "light": "Modo Claro",
+      "dark": "Modo Oscuro",
+      "colors": "Colores de Tema"
+    }
+  },
+  "languages": {
+    "en": "Inglés",
+    "es": "Español",
+    "fr": "Francés",
+    "de": "Alemán",
+    "hi": "Hindi"
+  }
+}

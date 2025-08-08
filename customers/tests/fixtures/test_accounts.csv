@@ -1,5 +1,0 @@
-name,legal_name,account_number,customer_group,parent_account,website,industry,description
-Acme Corporation,Acme Corp Ltd.,ACM001,Business,,https://acme.example.com,Manufacturing,Leading manufacturer of widgets
-TechStart Inc.,TechStart Innovations,TECH002,Business,,https://techstart.example.com,Technology,Innovative tech startup
-Government Agency,Department of Administration,GOV003,Government,,https://gov.example.com,Government,Government regulatory body
-John Smith,,IND001,Individual,,,Consumer,Individual customer

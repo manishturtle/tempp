@@ -1,5 +1,0 @@
-name,legal_name,account_number,customer_group,website,industry,description,primary_contact_first_name,primary_contact_last_name,primary_contact_email,primary_contact_phone
-Acme Corporation,Acme Corp Ltd.,ACM001,Business,https://acme.example.com,Manufacturing,Leading manufacturer of widgets,Michael,Johnson,michael.johnson@acme.example.com,+1-555-456-7890
-TechStart Inc.,TechStart Innovations,TECH002,Business,https://techstart.example.com,Technology,Innovative tech startup,David,Brown,david.brown@techstart.example.com,+1-555-345-6789
-John Smith,,IND001,Individual,,,Individual customer,John,Smith,john.smith@example.com,+1-555-123-4567
-Jane Doe,,IND002,Individual,,,Individual customer,Jane,Doe,jane.doe@example.com,+1-555-987-6543

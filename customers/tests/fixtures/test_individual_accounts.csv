@@ -1,4 +1,0 @@
-name,legal_name,account_number,customer_group,primary_contact_first_name,primary_contact_last_name,primary_contact_email,primary_contact_phone,description
-John Smith,,IND001,Individual,John,Smith,john.smith@example.com,+1-555-123-4567,Individual customer
-Jane Doe,,IND002,Individual,Jane,Doe,jane.doe@example.com,+1-555-987-6543,Individual customer
-Robert Johnson,,IND003,Individual,Robert,Johnson,robert.johnson@example.com,+1-555-456-7890,Individual customer

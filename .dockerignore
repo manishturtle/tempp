@@ -1,40 +1,36 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+# Dependencies
+node_modules
+.pnp
+.pnp.js
 
-# Django
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-media
+# Testing
+coverage
 
-# Virtual Environment
+# Next.js
+.next/
+out/
+
+# Production
+build
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local env files
 .env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
+.vercel
 
 # Git
 .git
@@ -48,8 +44,3 @@ venv.bak/
 *.njsproj
 *.sln
 *.sw?
-
-# Testing
-.coverage
-htmlcov/
-.pytest_cache/
