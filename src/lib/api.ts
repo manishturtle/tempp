@@ -1,4 +1,5 @@
 import axios from "axios";
+import { COCKPIT_API_BASE_URL } from "@/utils/constants";
 
 /**
  * Get the current tenant slug from localStorage
@@ -30,9 +31,8 @@ const api = axios.create({
   },
 });
 
-// Create axios instance
 export const tenantApi = axios.create({
-  baseURL: "http://localhost:8000/api/",
+  baseURL: `${COCKPIT_API_BASE_URL}/`,
   withCredentials: true, // Enable sending cookies with cross-origin requests
   headers: {
     "Content-Type": "application/json",
@@ -44,7 +44,7 @@ export const tenantApi = axios.create({
 export const setAuthToken = (token: string | null) => {
   if (token) {
     // api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    console.log("Auth token set (currently disabled):", token);
+    console.log("Auth token set (currently disabled)09:", token);
   } else {
     // delete api.defaults.headers.common['Authorization'];
     console.log("Auth token removed (currently disabled)");
@@ -105,6 +105,13 @@ export interface ApiEndpoints {
       getSegment: () => string;
       getInvoiceConfigs: () => string;
     };
+    receipts: {
+      list: () => string;
+      detail: (id: number) => string;
+      create: () => string;
+      correct: (id: number) => string;
+      delete: (id: number) => string;
+    };
   };
   paymentMethods: {
     list: (params?: { is_active?: boolean; payment_type?: string }) => string;
@@ -124,7 +131,11 @@ export interface ApiEndpoints {
     statistics: string;
   };
   pincodes: {
-    list: (params?: { is_active?: boolean; search?: string; zone_id?: number }) => string;
+    list: (params?: {
+      is_active?: boolean;
+      search?: string;
+      zone_id?: number;
+    }) => string;
     detail: (id: number) => string;
     create: string;
     update: (id: number) => string;
@@ -210,6 +221,14 @@ export interface ApiEndpoints {
     create: string;
     update: (id: number) => string;
     delete: (id: number) => string;
+  };
+  customerGroupSellingChannels: {
+    list: string;
+  };
+  guestConfig: {
+    list: string;
+    bulkCreate: string;
+    bulkUpdate: string;
   };
   timeSlots: {
     list: string;
@@ -417,68 +436,77 @@ export const apiEndpoints: ApiEndpoints = {
       detail: (id: string) => `/${getTenantSlug()}/admin/invoices/${id}/`,
       create: () => `/${getTenantSlug()}/admin/invoices/`,
       update: (id: string) => `/${getTenantSlug()}/admin/invoices/${id}/`,
-      getUnpaidInvoices: () => `/${getTenantSlug()}/admin/invoices/get-unpaid-invoices/`,
-      getSegment: () => `/${getTenantSlug()}/customer-group-selling-channel-segment/`,
+      getUnpaidInvoices: () =>
+        `/${getTenantSlug()}/admin/invoices/get-unpaid-invoices/`,
+      getSegment: () =>
+        `/${getTenantSlug()}/customer-group-selling-channel-segment/`,
       getInvoiceConfigs: () => `/${getTenantSlug()}/invoice-config/`,
+    },
+    receipts: {
+      list: () => `/${getTenantSlug()}/admin/receipts/`,
+      detail: (id: number) => `/${getTenantSlug()}/admin/receipts/${id}/`,
+      create: () => `/${getTenantSlug()}/admin/receipts/`,
+      correct: (id: number) => `/${getTenantSlug()}/admin/receipts/${id}/correct/`,
+      delete: (id: number) => `/${getTenantSlug()}/admin/receipts/${id}/`,
     },
   },
   paymentMethods: {
     list: (params = {}) => {
       const queryParams = new URLSearchParams();
       if (params.is_active !== undefined) {
-        queryParams.append('is_active', params.is_active.toString());
+        queryParams.append("is_active", params.is_active.toString());
       }
       if (params.payment_type) {
-        queryParams.append('payment_type', params.payment_type);
+        queryParams.append("payment_type", params.payment_type);
       }
       const queryString = queryParams.toString();
-      return `/payment-methods/${queryString ? `?${queryString}` : ''}`;
+      return `/payment-methods/${queryString ? `?${queryString}` : ""}`;
     },
     detail: (id: number) => `/payment-methods/${id}/`,
-    create: '/payment-methods/',
+    create: "/payment-methods/",
     update: (id: number) => `/payment-methods/${id}/`,
     delete: (id: number) => `/payment-methods/${id}/`,
-    statistics: '/payment-methods/statistics/',
+    statistics: "/payment-methods/statistics/",
   },
   shippingZones: {
     list: (params = {}) => {
       const queryParams = new URLSearchParams();
       if (params.is_active !== undefined) {
-        queryParams.append('is_active', params.is_active.toString());
+        queryParams.append("is_active", params.is_active.toString());
       }
       if (params.search) {
-        queryParams.append('search', params.search);
+        queryParams.append("search", params.search);
       }
       const queryString = queryParams.toString();
-      return `/shipping/zones/${queryString ? `?${queryString}` : ''}`;
+      return `/shipping/zones/${queryString ? `?${queryString}` : ""}`;
     },
     detail: (id: number) => `/shipping/zones/${id}/`,
-    create: '/shipping/zones/',
+    create: "/shipping/zones/",
     update: (id: number) => `/shipping/zones/${id}/`,
     delete: (id: number) => `/shipping/zones/${id}/`,
     pincodes: (zoneId: number) => `/shipping/zones/${zoneId}/pincodes/`,
-    statistics: '/shipping/zones/statistics/',
+    statistics: "/shipping/zones/statistics/",
   },
   pincodes: {
     list: (params = {}) => {
       const queryParams = new URLSearchParams();
       if (params.is_active !== undefined) {
-        queryParams.append('is_active', params.is_active.toString());
+        queryParams.append("is_active", params.is_active.toString());
       }
       if (params.search) {
-        queryParams.append('search', params.search);
+        queryParams.append("search", params.search);
       }
       if (params.zone_id) {
-        queryParams.append('zone_id', params.zone_id.toString());
+        queryParams.append("zone_id", params.zone_id.toString());
       }
       const queryString = queryParams.toString();
-      return `/shipping/pincodes/${queryString ? `?${queryString}` : ''}`;
+      return `/shipping/pincodes/${queryString ? `?${queryString}` : ""}`;
     },
     detail: (id: number) => `/shipping/pincodes/${id}/`,
-    create: '/shipping/pincodes/',
+    create: "/shipping/pincodes/",
     update: (id: number) => `/shipping/pincodes/${id}/`,
     delete: (id: number) => `/shipping/pincodes/${id}/`,
-    validate: '/shipping/pincodes/validate/',
+    validate: "/shipping/pincodes/validate/",
   },
   opportunities: {
     roles: {
@@ -705,6 +733,14 @@ export const apiEndpoints: ApiEndpoints = {
     create: "/shipping-methods/",
     update: (id: number) => `/shipping-methods/${id}/`,
     delete: (id: number) => `/shipping-methods/${id}/`,
+  },
+  customerGroupSellingChannels: {
+    list: "/customer-group-selling-channels/",
+  },
+  guestConfig: {
+    list: "/guest-config/",
+    bulkCreate: "/guest-config/",
+    bulkUpdate: "/guest-config/bulk-update/",
   },
   checkoutConfigs: {
     list: "/checkout-configs/",

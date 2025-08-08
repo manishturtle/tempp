@@ -20,7 +20,7 @@ interface CustomerDetailsProps {
   orderData: any;
   setOrderData: (data: any) => void;
   setAddresses: (addresses: any[]) => void;
-  unpaidInvoices: any;
+  unpaidInvoices?: any;
 }
 
 /**
@@ -36,12 +36,10 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({
   orderData,
   setOrderData,
   setAddresses,
-  unpaidInvoices,
+  unpaidInvoices = null,
 }) => {
   const { t } = useTranslation();
 
-  console.log("unpaidInvoices", unpaidInvoices);
-  // Helper to determine if fields should be readonly
   const isReadOnly = mode?.toLowerCase() === OrderMode.VIEW;
 
   const handleAccountChange = (account: any) => {

@@ -109,9 +109,8 @@
       "invoiceType": "Invoice Type",
       "invoiceStatus": "Invoice Status",
       "paymentStatus": "Payment Status",
-      "paymentTermsLabel": "Payment Terms",
-      "noPaymentTermsFound": "No Payment Terms Found",
-      "paymentTermsDays": "Days",
+      "paymentTermsLabel": "Payment Terms Label",
+      "paymentTerms": "Payment Terms",
       "dueDate": "Due Date"
     },
     "type": {
@@ -566,7 +565,7 @@
   "field": {
     "name": "Name",
     "email": "Email",
-    "phone": "Phone",
+    "phone": "Website/Phone",
     "address": "Address",
     "description": "Description",
     "price": "Price",

@@ -17,6 +17,7 @@ import TenantService from "@/app/auth/services/tenantService";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/app/auth/store/authStore";
 import { useLocation, Country } from "@/app/hooks/api/tenant-admin/useLocation";
+import useWebSellingChannelSegments from "@/app/hooks/api/store/useWebSellingChannelSegments";
 import { PhoneInputField } from "@/app/components/ui/PhoneInputField";
 import {
   Autocomplete,
@@ -24,19 +25,16 @@ import {
   Button,
   CircularProgress,
   Collapse,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
   Grid,
   MenuItem,
-  Radio,
-  RadioGroup,
   TextField,
   Typography,
   Alert,
   Tooltip,
   InputAdornment,
   IconButton,
+  Paper,
+  useTheme,
 } from "@mui/material";
 // Define account type constants
 const ACCOUNT_TYPES = {
@@ -109,12 +107,29 @@ const SignupFormComponent = ({
   email,
 }: SignupFormProps): React.ReactElement => {
   const { t } = useTranslation();
-  const router = useRouter();
+  const theme = useTheme();
   const signup = useSignup();
   const createAccountAndContactMutation = createAccountAndContact();
   const verifyOTP = useVerifyOTP();
   const resendOTP = useResendOTP();
   const { login: setAuthData } = useAuthStore();
+
+  // Fetch web selling channel segments
+  const {
+    data: webSellingChannelSegments,
+    isLoading: isLoadingSegments,
+    error: segmentsError,
+  } = useWebSellingChannelSegments();
+
+  // Log the segments data to console
+  useEffect(() => {
+    if (webSellingChannelSegments) {
+      console.log("Web Selling Channel Segments:", webSellingChannelSegments);
+    }
+    if (segmentsError) {
+      console.error("Error loading segments:", segmentsError);
+    }
+  }, [webSellingChannelSegments, segmentsError]);
 
   // Get tenant slug from session storage
   const getTenantSlug = (): string => {
@@ -136,8 +151,12 @@ const SignupFormComponent = ({
   const tenantSlug = getTenantSlug();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
-  const [accountType, setAccountType] = useState<AccountType>(
-    ACCOUNT_TYPES.INDIVIDUAL
+  const [accountType, setAccountType] = useState<AccountType>();
+
+  // State for managing tabs and selected segments
+  const [selectedTab, setSelectedTab] = useState<string>("");
+  const [selectedSegmentId, setSelectedSegmentId] = useState<number | null>(
+    null
   );
 
   // OTP verification states
@@ -152,10 +171,11 @@ const SignupFormComponent = ({
   const [resendDisabled, setResendDisabled] = useState<boolean>(false);
   const [resendCountdown, setResendCountdown] = useState<number>(60); // 60 seconds countdown
   const [timerRef, setTimerRef] = useState<NodeJS.Timeout | null>(null);
-  
+
   // Password visibility states
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState<boolean>(false);
 
   // We still keep selectedCountry for UI display purposes
   // but the actual value will be in the form state
@@ -206,6 +226,22 @@ const SignupFormComponent = ({
   // Watch the account type to update the form accordingly
   const currentAccountType = watch("account_type");
 
+  // Auto-select segment if only one option is available
+  useEffect(() => {
+    if (
+      selectedTab &&
+      webSellingChannelSegments?.[selectedTab] &&
+      !selectedSegmentId
+    ) {
+      const segments = webSellingChannelSegments[selectedTab];
+      if (segments.length === 1) {
+        // Auto-select the only available segment
+        setSelectedSegmentId(segments[0].id);
+        console.log("Auto-selected single segment:", segments[0]);
+      }
+    }
+  }, [selectedTab, webSellingChannelSegments, selectedSegmentId]);
+
   useEffect(() => {
     if (currentAccountType !== accountType) {
       setAccountType(currentAccountType as AccountType);
@@ -241,6 +277,11 @@ const SignupFormComponent = ({
         // Get form values using getValues() from react-hook-form
         const formValues = getValues();
 
+        // Find the selected segment based on selectedSegmentId
+        const selectedSegment = webSellingChannelSegments?.[selectedTab]?.find(
+          (segment) => segment.id === selectedSegmentId
+        );
+
         const submitData = {
           account_type: formValues.account_type,
           first_name: formValues.first_name,
@@ -249,6 +290,9 @@ const SignupFormComponent = ({
           phone: formValues.phone,
           user_id: user_id,
           country: formValues.country,
+          // Add segment information
+          customer_group_id: selectedSegment?.customer_group_id,
+          segment_name: selectedSegment?.segment_name,
           // Business fields (if applicable)
           ...(formValues.account_type === ACCOUNT_TYPES.BUSINESS && {
             business_name: formValues.business_name,
@@ -264,29 +308,41 @@ const SignupFormComponent = ({
           await createAccountAndContactMutation.mutateAsync(submitData);
 
         console.log("Account creation response:", signupResponse);
-      }
 
-      if (response.access_token) {
-        TenantService.setToken(response.access_token);
-      }
+        // Only proceed with token setting and auth if account creation was successful
+        if (signupResponse) {
+          if (response.access_token) {
+            TenantService.setToken(response.access_token);
+          }
 
-      if (response.refresh_token) {
-        TenantService.setRefreshToken(response.refresh_token);
-      }
+          if (response.refresh_token) {
+            TenantService.setRefreshToken(response.refresh_token);
+          }
 
-      // Update auth store with user data
-      if (response.user && response.access_token && response.refresh_token) {
-        setAuthData(
-          response.access_token,
-          response.refresh_token,
-          response.user
-        );
+          // Update auth store with user data
+          if (
+            response.user &&
+            response.access_token &&
+            response.refresh_token
+          ) {
+            // Merge user data with account creation response data
+            const enhancedUserData = {
+              ...response.user,
+              customer_group_id: signupResponse?.data?.customer_group_id,
+              group_type: signupResponse?.data?.account_type,
+            };
 
-        // Redirect user based on their role if needed
-        if (onSuccess) {
-          onSuccess();
-        } else {
-          router.push("/");
+            setAuthData(
+              response.access_token,
+              response.refresh_token,
+              enhancedUserData
+            );
+
+            // Redirect user based on their role if needed
+            if (onSuccess) {
+              onSuccess();
+            }
+          }
         }
       }
 
@@ -362,7 +418,19 @@ const SignupFormComponent = ({
    * Handle form submission
    */
   const onSubmit = async (formData: SignupFormValues): Promise<void> => {
-    console.log("Form data submitted:", formData);
+    // Find the selected segment based on selectedSegmentId
+    const selectedSegment = webSellingChannelSegments?.[selectedTab]?.find(
+      (segment) => segment.id === selectedSegmentId
+    );
+
+    // Add the customer_group_id and selling_channel_id to the form data
+    const enhancedFormData = {
+      ...formData,
+      customer_group_id: selectedSegment?.customer_group_id,
+      segment_name: selectedSegment?.segment_name,
+    };
+
+    console.log("Form data submitted:", enhancedFormData);
     setErrorMessage(null);
     setFieldErrors({});
 
@@ -374,6 +442,7 @@ const SignupFormComponent = ({
         password: formData.password,
         first_name: formData.first_name,
         last_name: formData.last_name,
+        source_id: "ecommerce",
       };
 
       // With OTP verification now being required, we need to capture the email and show OTP input
@@ -472,7 +541,7 @@ const SignupFormComponent = ({
             />
 
             <Grid container spacing={2}>
-              <Grid size={{xs:12, sm:6}}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Button
                   fullWidth
                   variant="outlined"
@@ -483,7 +552,7 @@ const SignupFormComponent = ({
                   {t("auth.cancel") || "Cancel"}
                 </Button>
               </Grid>
-              <Grid size={{xs:12, sm:6}}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Button
                   fullWidth
                   variant="contained"
@@ -519,24 +588,34 @@ const SignupFormComponent = ({
             </Grid>
 
             <Box sx={{ mt: 3, textAlign: "center" }}>
-              <Tooltip title={resendDisabled ? t("Wait before resending") : t("Resend verification code")}>
-                <span> {/* Wrapper needed for tooltip to work with disabled button */}
+              <Tooltip
+                title={
+                  resendDisabled
+                    ? t("Wait before resending")
+                    : t("Resend verification code")
+                }
+              >
+                <span>
+                  {" "}
+                  {/* Wrapper needed for tooltip to work with disabled button */}
                   <Button
                     type="button"
                     variant="outlined"
                     size="small"
                     disabled={isResending || resendDisabled}
                     onClick={handleResendOtp}
-                    sx={{ 
+                    sx={{
                       textTransform: "none",
                       display: "flex",
                       alignItems: "center",
-                      gap: 0.5
+                      gap: 0.5,
                     }}
                     startIcon={<Timer fontSize="small" />}
                   >
                     {isResending ? (
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
                         <CircularProgress size={20} color="inherit" />
                         <span>{t("Sending...")}</span>
                       </Box>
@@ -552,467 +631,660 @@ const SignupFormComponent = ({
           </Box>
         ) : (
           <>
-            {/* Account Type Selection */}
-            <FormControl component="fieldset" sx={{ width: "100%" }}>
-              <FormLabel component="legend">{t("auth.accountType")}</FormLabel>
-              <Controller
-                name="account_type"
-                control={control}
-                render={({ field }) => (
-                  <RadioGroup {...field} row aria-label="account type">
-                    <FormControlLabel
-                      value={ACCOUNT_TYPES.INDIVIDUAL}
-                      control={<Radio />}
-                      label={t("auth.individual")}
-                    />
-                    <FormControlLabel
-                      value={ACCOUNT_TYPES.BUSINESS}
-                      control={<Radio />}
-                      label={t("auth.business")}
-                    />
-                  </RadioGroup>
-                )}
-              />
-            </FormControl>
+            {/* Account Type Selection with Tabs and Chips */}
+            <Box sx={{ width: "100%" }}>
+              {isLoadingSegments ? (
+                <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
+                  <CircularProgress size={24} />
+                </Box>
+              ) : webSellingChannelSegments ? (
+                <>
+                  {/* Step 1: Cards for customer groups - hide if tab is selected (Step 2 active) */}
+                  {Object.keys(webSellingChannelSegments).length > 0 
+                     && (
+                      <>
+                        <Box sx={{ mb: 1 }}>
+                          <Typography variant="h6">
+                            What best describes you?
+                          </Typography>
+                        </Box>
+                        <Grid container spacing={2}>
+                          {Object.keys(webSellingChannelSegments).map(
+                            (groupKey) => (
+                              <Grid
+                                size={{ xs: 12, sm: 6, md: 4 }}
+                                key={groupKey}
+                              >
+                                <Paper
+                                  elevation={0}
+                                  onClick={() => {
+                                    // Just set the selected tab without any default selection
+                                    setSelectedTab(groupKey);
+                                    setSelectedSegmentId(null);
+                                    setValue(
+                                      "account_type",
+                                      groupKey as AccountType
+                                    );
+                                  }}
+                                  sx={{
+                                    border: `1px solid ${theme.palette.primary.main}`,
+                                    borderRadius: 1,
+                                    backgroundColor:
+                                      selectedTab === groupKey
+                                        ? "action.hover"
+                                        : "background.paper",
+                                    cursor: "pointer",
+                                    height: "100%",
+                                    minHeight: "80px",
+                                    "&:hover": {
+                                      backgroundColor: "action.hover",
+                                    },
+                                    transition: "all 0.2s ease",
+                                  }}
+                                >
+                                  <Box
+                                    sx={{
+                                      p: 2,
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      height: "100%",
+                                    }}
+                                  >
+                                    <Typography
+                                      variant="h6"
+                                      sx={{
+                                        fontSize: "1rem",
+                                        fontWeight: 500,
+                                        textAlign: "center",
+                                      }}
+                                    >
+                                      {groupKey.charAt(0) +
+                                        groupKey.slice(1).toLowerCase()}
+                                    </Typography>
+                                  </Box>
+                                </Paper>
+                              </Grid>
+                            )
+                          )}
+                        </Grid>
+                      </>
+                    )}
 
-            {/* Personal Information Fields (for both account types) */}
-            <Collapse in={true} appear timeout={500}>
-              <Box>
-                <Grid container spacing={2}>
-                  <Grid size={{xs:12, sm:6}}>
-                    <Controller
-                      name="first_name"
-                      control={control}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          required
-                          fullWidth
-                          size="small"
-                          id="first_name"
-                          label={t("auth.firstName")}
-                          autoComplete="given-name"
-                          error={!!errors.first_name}
-                          helperText={
-                            errors.first_name
-                              ? t(`auth.${errors.first_name.message}`)
-                              : ""
-                          }
-                          autoFocus
-                        />
-                      )}
-                    />
-                  </Grid>
+                  {/* Step 2: Cards for segments within selected tab - show if tab selected but no segment selected and more than 1 option */}
+                  {selectedTab &&
+                    !selectedSegmentId &&
+                    webSellingChannelSegments[selectedTab]?.length > 1 && (
+                      <Collapse
+                        in={!!selectedTab && !selectedSegmentId}
+                        timeout={500}
+                      >
+                        <Box sx={{ mb: 1,mt:1 }}>
+                          <Typography variant="h6">
+                            What type of account do you need?
+                          </Typography>
+                        </Box>
+                        <Grid container spacing={2} sx={{ mt: 0.5 }}>
+                          {webSellingChannelSegments[selectedTab]?.map(
+                            (segment) => (
+                              <Grid
+                                size={{ xs: 12, sm: 6, md: 4 }}
+                                key={segment.id}
+                              >
+                                <Paper
+                                  elevation={0}
+                                  onClick={() => {
+                                    setSelectedSegmentId(segment.id);
+                                    console.log("Selected segment:", segment);
+                                  }}
+                                  sx={{
+                                    border: `1px solid ${theme.palette.primary.main}`,
+                                    borderRadius: 1,
+                                    backgroundColor:
+                                      selectedSegmentId === segment.id
+                                        ? "action.hover"
+                                        : "background.paper",
+                                    cursor: "pointer",
+                                    height: "100%",
+                                    minHeight: "80px",
+                                    "&:hover": {
+                                      backgroundColor: "action.hover",
+                                    },
+                                    transition: "all 0.2s ease",
+                                  }}
+                                >
+                                  <Box
+                                    sx={{
+                                      p: 1,
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      alignItems: "flex-start",
+                                      justifyContent: "flex-start",
+                                      height: "100%",
+                                    }}
+                                  >
+                                    <Typography
+                                      sx={{
+                                        fontSize: "0.95rem",
+                                        fontWeight: 500,
+                                        display: "flex",
+                                        alignItems: "center",
+                                      }}
+                                    >
+                                      {segment.customer_group_display_name}
+                                    </Typography>
+                                    <Typography
+                                      color="text.secondary"
+                                      sx={{
+                                        fontSize: "0.8rem",
+                                        textAlign: "left",
+                                        width: "100%",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        display: "-webkit-box",
+                                        WebkitLineClamp: 2,
+                                        WebkitBoxOrient: "vertical",
+                                        lineHeight: "1.2em",
+                                        maxHeight: "2.4em",
+                                      }}
+                                    >
+                                      {segment.customer_group_description}
+                                    </Typography>
+                                  </Box>
+                                </Paper>
+                              </Grid>
+                            )
+                          )}
+                        </Grid>
+                      </Collapse>
+                    )}
+                </>
+              ) : (
+                <Alert severity="warning">
+                  Unable to load account types. Please try again.
+                </Alert>
+              )}
+            </Box>
 
-                  <Grid size={{xs:12, sm:6}}>
-                    <Controller
-                      name="last_name"
-                      control={control}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          required
-                          size="small"
-                          fullWidth
-                          id="last_name"
-                          label={t("auth.lastName")}
-                          autoComplete="family-name"
-                          error={!!errors.last_name}
-                          helperText={
-                            errors.last_name
-                              ? t(`auth.${errors.last_name.message}`)
-                              : ""
-                          }
-                        />
-                      )}
-                    />
-                  </Grid>
-
-                  <Grid size={{xs:12, sm:6}}>
-                    <Controller
-                      name="email"
-                      control={control}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          required
-                          fullWidth
-                          id="email"
-                          size="small"
-                          label={t("auth.email")}
-                          autoComplete="email"
-                          error={!!errors.email}
-                          helperText={
-                            errors.email
-                              ? t(`auth.${errors.email.message}`)
-                              : ""
-                          }
-                        />
-                      )}
-                    />
-                  </Grid>
-                  <Grid size={{xs:12, sm:6}}>
-                    <PhoneInputField
-                      name="phone"
-                      label={t("auth.phone")}
-                      control={control}
-                      error={!!errors.phone}
-                      helperText={errors.phone ? t(`auth.${errors.phone.message}`) : ""}
-                      required
-                      margin="none"
-                      size="medium"
-                    />
-                  </Grid>
-                  {/* Country Dropdown with smooth animation */}
-                  <Grid size={{xs:12}}>
-                    <Collapse in={showCountryDropdown} timeout={500}>
-                      <Autocomplete
-                        id="country-select"
-                        options={countries}
-                        loading={isLoadingCountries}
-                        getOptionLabel={(option: Country) => option.name || ""}
-                        isOptionEqualToValue={(
-                          option: Country,
-                          value: Country
-                        ) => option.id === value.id}
-                        onChange={(_, newValue: Country | null) => {
-                          setValue('country', newValue ? newValue.name : '', { shouldValidate: true });
-                          // Still update the selectedCountry for backward compatibility if needed
-                          setSelectedCountry(newValue ? newValue.name : null);
-                        }}
-                        value={countries.find(country => country.name === selectedCountry) || null}
-                        renderInput={(params) => (
+            {/* Step 3: Personal Information Fields - only show if segment is selected */}
+            {selectedSegmentId && (
+              <>
+                <Box sx={{ mb: 3 }}></Box>
+                <Collapse in={!!selectedSegmentId} appear timeout={500}>
+                  <Grid container spacing={2}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <Controller
+                        name="first_name"
+                        control={control}
+                        render={({ field }) => (
                           <TextField
-                            {...params}
-                            label={t("auth.country")}
+                            {...field}
+                            required
                             fullWidth
                             size="small"
-                            error={!!errors.country}
-                            helperText={errors.country?.message}
-                            InputProps={{
-                              ...params.InputProps,
-                              endAdornment: (
-                                <React.Fragment>
-                                  {isLoadingCountries ? (
-                                    <CircularProgress
-                                      color="inherit"
-                                      size={20}
-                                    />
-                                  ) : null}
-                                  {params.InputProps.endAdornment}
-                                </React.Fragment>
-                              ),
-                            }}
+                            id="first_name"
+                            label={t("auth.firstName")}
+                            autoComplete="given-name"
+                            error={!!errors.first_name}
+                            helperText={
+                              errors.first_name
+                                ? t(`auth.${errors.first_name.message}`)
+                                : ""
+                            }
+                            autoFocus
+                            sx={{ mb: 0 }}
                           />
                         )}
                       />
-                    </Collapse>
-                  </Grid>
-                  <Grid size={{xs:12, sm:6}}>
-                    <Controller
-                      name="password"
-                      control={control}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          required
-                          fullWidth
-                          size="small"
-                          name="password"
-                          label={t("auth.password")}
-                          type={showPassword ? "text" : "password"}
-                          id="password"
-                          autoComplete="new-password"
-                          error={!!errors.password}
-                          helperText={
-                            errors.password
-                              ? t(`auth.${errors.password.message}`)
-                              : ""
+                    </Grid>
+
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <Controller
+                        name="last_name"
+                        control={control}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            required
+                            size="small"
+                            fullWidth
+                            id="last_name"
+                            label={t("auth.lastName")}
+                            autoComplete="family-name"
+                            error={!!errors.last_name}
+                            helperText={
+                              errors.last_name
+                                ? t(`auth.${errors.last_name.message}`)
+                                : ""
+                            }
+                            sx={{ mb: 0 }}
+                          />
+                        )}
+                      />
+                    </Grid>
+
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <Controller
+                        name="email"
+                        control={control}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            required
+                            fullWidth
+                            id="email"
+                            size="small"
+                            label={t("auth.email")}
+                            autoComplete="email"
+                            error={!!errors.email}
+                            helperText={
+                              errors.email
+                                ? t(`auth.${errors.email.message}`)
+                                : ""
+                            }
+                            onChange={(e) =>
+                              field.onChange(e.target.value.toLowerCase())
+                            }
+                            sx={{ mb: 0 }}
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <PhoneInputField
+                        name="phone"
+                        label={t("auth.phone")}
+                        control={control}
+                        error={!!errors.phone}
+                        helperText={
+                          errors.phone ? t(`auth.${errors.phone.message}`) : ""
+                        }
+                        required
+                        margin="none"
+                        size="medium"
+                      />
+                    </Grid>
+                    {/* Country Dropdown with smooth animation */}
+                    <Grid size={{ xs: 12 }}>
+                      <Collapse in={showCountryDropdown} timeout={500}>
+                        <Autocomplete
+                          id="country-select"
+                          options={countries}
+                          loading={isLoadingCountries}
+                          getOptionLabel={(option: Country) =>
+                            option.name || ""
                           }
-                          InputProps={{
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                <IconButton
-                                  aria-label="toggle password visibility"
-                                  onClick={() => setShowPassword(!showPassword)}
-                                  edge="end"
-                                  size="small"
-                                  sx={{
-                                    color: "text.secondary",
-                                    "&:hover": {
-                                      backgroundColor: "transparent",
-                                      color: "primary.main",
-                                    },
-                                  }}
-                                >
-                                  {showPassword ? (
-                                    <VisibilityOff fontSize="small" />
-                                  ) : (
-                                    <Visibility fontSize="small" />
-                                  )}
-                                </IconButton>
-                              </InputAdornment>
-                            ),
+                          isOptionEqualToValue={(
+                            option: Country,
+                            value: Country
+                          ) => option.id === value.id}
+                          onChange={(_, newValue: Country | null) => {
+                            setValue("country", newValue ? newValue.name : "", {
+                              shouldValidate: true,
+                            });
+                            // Still update the selectedCountry for backward compatibility if needed
+                            setSelectedCountry(newValue ? newValue.name : null);
                           }}
-                        />
-                      )}
-                    />
-                  </Grid>
-                  <Grid size={{xs:12, sm:6}}>
-                    <Controller
-                      name="password_confirm"
-                      control={control}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          required
-                          fullWidth
-                          size="small"
-                          name="password_confirm"
-                          label={t("auth.confirmPassword")}
-                          type={showConfirmPassword ? "text" : "password"}
-                          id="password_confirm"
-                          autoComplete="new-password"
-                          error={!!errors.password_confirm}
-                          helperText={
-                            errors.password_confirm
-                              ? t(`auth.${errors.password_confirm.message}`)
-                              : ""
+                          value={
+                            countries.find(
+                              (country) => country.name === selectedCountry
+                            ) || null
                           }
-                          InputProps={{
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                <IconButton
-                                  aria-label="toggle confirm password visibility"
-                                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                  edge="end"
-                                  size="small"
-                                  sx={{
-                                    color: "text.secondary",
-                                    "&:hover": {
-                                      backgroundColor: "transparent",
-                                      color: "primary.main",
-                                    },
-                                  }}
-                                >
-                                  {showConfirmPassword ? (
-                                    <VisibilityOff fontSize="small" />
-                                  ) : (
-                                    <Visibility fontSize="small" />
-                                  )}
-                                </IconButton>
-                              </InputAdornment>
-                            ),
-                          }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label={t("auth.country")}
+                              fullWidth
+                              size="small"
+                              error={!!errors.country}
+                              helperText={errors.country?.message}
+                              InputProps={{
+                                ...params.InputProps,
+                                endAdornment: (
+                                  <React.Fragment>
+                                    {isLoadingCountries ? (
+                                      <CircularProgress
+                                        color="inherit"
+                                        size={20}
+                                      />
+                                    ) : null}
+                                    {params.InputProps.endAdornment}
+                                  </React.Fragment>
+                                ),
+                              }}
+                              sx={{ mb: 0 }}
+                            />
+                          )}
                         />
-                      )}
-                    />
+                      </Collapse>
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <Controller
+                        name="password"
+                        control={control}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            required
+                            fullWidth
+                            size="small"
+                            name="password"
+                            label={t("auth.password")}
+                            type={showPassword ? "text" : "password"}
+                            id="password"
+                            autoComplete="new-password"
+                            error={!!errors.password}
+                            helperText={
+                              errors.password
+                                ? t(`auth.${errors.password.message}`)
+                                : ""
+                            }
+                            InputProps={{
+                              endAdornment: (
+                                <InputAdornment position="end">
+                                  <IconButton
+                                    aria-label="toggle password visibility"
+                                    onClick={() =>
+                                      setShowPassword(!showPassword)
+                                    }
+                                    edge="end"
+                                    size="small"
+                                    sx={{
+                                      color: "text.secondary",
+                                      "&:hover": {
+                                        backgroundColor: "transparent",
+                                        color: "primary.main",
+                                      },
+                                    }}
+                                  >
+                                    {showPassword ? (
+                                      <VisibilityOff fontSize="small" />
+                                    ) : (
+                                      <Visibility fontSize="small" />
+                                    )}
+                                  </IconButton>
+                                </InputAdornment>
+                              ),
+                            }}
+                            sx={{ mb: 0 }}
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <Controller
+                        name="password_confirm"
+                        control={control}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            required
+                            fullWidth
+                            size="small"
+                            name="password_confirm"
+                            label={t("auth.confirmPassword")}
+                            type={showConfirmPassword ? "text" : "password"}
+                            id="password_confirm"
+                            autoComplete="new-password"
+                            error={!!errors.password_confirm}
+                            helperText={
+                              errors.password_confirm
+                                ? t(`auth.${errors.password_confirm.message}`)
+                                : ""
+                            }
+                            InputProps={{
+                              endAdornment: (
+                                <InputAdornment position="end">
+                                  <IconButton
+                                    aria-label="toggle confirm password visibility"
+                                    onClick={() =>
+                                      setShowConfirmPassword(
+                                        !showConfirmPassword
+                                      )
+                                    }
+                                    edge="end"
+                                    size="small"
+                                    sx={{
+                                      color: "text.secondary",
+                                      "&:hover": {
+                                        backgroundColor: "transparent",
+                                        color: "primary.main",
+                                      },
+                                    }}
+                                  >
+                                    {showConfirmPassword ? (
+                                      <VisibilityOff fontSize="small" />
+                                    ) : (
+                                      <Visibility fontSize="small" />
+                                    )}
+                                  </IconButton>
+                                </InputAdornment>
+                              ),
+                            }}
+                            sx={{ mb: 0 }}
+                          />
+                        )}
+                      />
+                    </Grid>
                   </Grid>
-                </Grid>
-              </Box>
-            </Collapse>
+                </Collapse>
 
-            {/* Business-specific Fields - with smooth animation */}
-            <Collapse
-              in={currentAccountType === ACCOUNT_TYPES.BUSINESS}
-              timeout={500}
-              unmountOnExit
-            >
-              <Box sx={{ mt: 2 }}>
-                <Typography variant="h6" sx={{ mb: 1 }}>
-                  {t("auth.businessInformation")}
-                </Typography>
-
-                <Grid container spacing={2}>
-                  <Grid size={{xs:12, sm:6}}>
-                    <Controller
-                      name="business_name"
-                      control={control}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          required
-                          fullWidth
-                          size="small"
-                          id="business_name"
-                          label={t("auth.businessName")}
-                          error={!!(errors as any)?.business_name}
-                          helperText={
-                            (errors as any)?.business_name
-                              ? t(
-                                  `auth.${
-                                    (errors as any)?.business_name.message
-                                  }`
-                                )
-                              : ""
-                          }
-                        />
-                      )}
-                    />
-                  </Grid>
-
-                  <Grid size={{xs:12, sm:6}}>
-                    <Controller
-                      name="legal_name"
-                      control={control}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          fullWidth
-                          size="small"
-                          id="legal_name"
-                          label={t("auth.legalName")}
-                        />
-                      )}
-                    />
-                  </Grid>
-
-                  <Grid size={{xs:12, sm:6}}>
-                    <Controller
-                      name="company_size"
-                      control={control}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          select
-                          fullWidth
-                          size="small"
-                          id="company_size"
-                          label={t("auth.companySize")}
-                        >
-                          <MenuItem value="1-10">
-                            {t("auth.companySize1_10")}
-                          </MenuItem>
-                          <MenuItem value="11-50">
-                            {t("auth.companySize11_50")}
-                          </MenuItem>
-                          <MenuItem value="51-200">
-                            {t("auth.companySize51_200")}
-                          </MenuItem>
-                          <MenuItem value="201-500">
-                            {t("auth.companySize201_500")}
-                          </MenuItem>
-                          <MenuItem value="501-1000">
-                            {t("auth.companySize501_1000")}
-                          </MenuItem>
-                          <MenuItem value="1000+">
-                            {t("auth.companySize1000plus")}
-                          </MenuItem>
-                        </TextField>
-                      )}
-                    />
-                  </Grid>
-
-                  <Grid size={{xs:12, sm:6}}>
-                    <Controller
-                      name="industry"
-                      control={control}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          fullWidth
-                          size="small"
-                          id="industry"
-                          label={t("auth.industry")}
-                        />
-                      )}
-                    />
-                  </Grid>
-
-                  <Grid size={{xs:12, sm:6}}>
-                    <Controller
-                      name="tax_id"
-                      control={control}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          fullWidth
-                          size="small"
-                          id="tax_id"
-                          label={
-                            selectedCountry === "India"
-                              ? t("auth.panCard")
-                              : t("auth.taxId")
-                          }
-                        />
-                      )}
-                    />
-                  </Grid>
-
-                  <Grid size={{xs:12, sm:6}}>
-                    <Controller
-                      name="website"
-                      control={control}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          fullWidth
-                          size="small"
-                          id="website"
-                          label={t("auth.website")}
-                          error={!!(errors as any)?.website}
-                          helperText={
-                            (errors as any)?.website
-                              ? t(`auth.${(errors as any)?.website.message}`)
-                              : ""
-                          }
-                        />
-                      )}
-                    />
-                  </Grid>
-                </Grid>
-              </Box>
-            </Collapse>
-
-            <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid size={{xs:12, sm:6}}>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  color="primary"
-                  size="large"
-                  onClick={onSwitchToLogin}
-                  sx={{ textTransform: "none" }}
+                {/* Business-specific Fields - with smooth animation */}
+                <Collapse
+                  in={currentAccountType === ACCOUNT_TYPES.BUSINESS}
+                  timeout={500}
+                  unmountOnExit
                 >
-                  Cancel
-                </Button>
-              </Grid>
-              <Grid size={{xs:12, sm:6}}>
-                <Button
-                  fullWidth
-                  type="submit"
-                  variant="contained"
-                  size="large"
-                  color="primary"
-                  disabled={signup.isPending}
-                  sx={{
-                    textTransform: "none",
-                    position: "relative",
-                    "&.Mui-disabled": {
-                      backgroundColor: (theme) => theme.palette.primary.main,
-                      color: "white",
-                      opacity: 0.7,
-                    },
-                  }}
-                >
-                  {signup.isPending ? (
-                    <Box
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="h6" sx={{ mb: 1 }}>
+                      {t("auth.businessInformation")}
+                    </Typography>
+
+                    <Grid container spacing={2}>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Controller
+                          name="business_name"
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              required
+                              fullWidth
+                              size="small"
+                              id="business_name"
+                              label={t("auth.businessName")}
+                              error={!!(errors as any)?.business_name}
+                              helperText={
+                                (errors as any)?.business_name
+                                  ? t(
+                                      `auth.${
+                                        (errors as any)?.business_name.message
+                                      }`
+                                    )
+                                  : ""
+                              }
+                              sx={{ mb: 0 }}
+                            />
+                          )}
+                        />
+                      </Grid>
+
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Controller
+                          name="legal_name"
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              fullWidth
+                              size="small"
+                              id="legal_name"
+                              label={t("auth.legalName")}
+                              sx={{ mb: 0 }}
+                            />
+                          )}
+                        />
+                      </Grid>
+
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Controller
+                          name="company_size"
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              select
+                              fullWidth
+                              size="small"
+                              sx={{
+                                mb: 0,
+                                "& .MuiInputBase-root": { height: 38 },
+                              }}
+                              id="company_size"
+                              label={t("auth.companySize")}
+                            >
+                              <MenuItem value="1-10">
+                                {t("auth.companySize1_10")}
+                              </MenuItem>
+                              <MenuItem value="11-50">
+                                {t("auth.companySize11_50")}
+                              </MenuItem>
+                              <MenuItem value="51-200">
+                                {t("auth.companySize51_200")}
+                              </MenuItem>
+                              <MenuItem value="201-500">
+                                {t("auth.companySize201_500")}
+                              </MenuItem>
+                              <MenuItem value="501-1000">
+                                {t("auth.companySize501_1000")}
+                              </MenuItem>
+                              <MenuItem value="1000+">
+                                {t("auth.companySize1000plus")}
+                              </MenuItem>
+                            </TextField>
+                          )}
+                        />
+                      </Grid>
+
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Controller
+                          name="industry"
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              fullWidth
+                              size="small"
+                              sx={{ mb: 0 }}
+                              id="industry"
+                              label={t("auth.industry")}
+                            />
+                          )}
+                        />
+                      </Grid>
+
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Controller
+                          name="tax_id"
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              fullWidth
+                              size="small"
+                              sx={{ mb: 0 }}
+                              id="tax_id"
+                              label={
+                                selectedCountry === "India"
+                                  ? t("auth.panCard")
+                                  : t("auth.taxId")
+                              }
+                            />
+                          )}
+                        />
+                      </Grid>
+
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Controller
+                          name="website"
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              fullWidth
+                              size="small"
+                              sx={{ mb: 0 }}
+                              id="website"
+                              label={t("auth.website")}
+                              error={!!(errors as any)?.website}
+                              helperText={
+                                (errors as any)?.website
+                                  ? t(
+                                      `auth.${(errors as any)?.website.message}`
+                                    )
+                                  : ""
+                              }
+                            />
+                          )}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Box>
+                </Collapse>
+
+                <Grid container spacing={2} sx={{ mt: 1 }}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      color="primary"
+                      size="large"
+                      onClick={onSwitchToLogin}
+                      sx={{ textTransform: "none" }}
+                    >
+                      Cancel
+                    </Button>
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <Button
+                      fullWidth
+                      type="submit"
+                      variant="contained"
+                      size="large"
+                      color="primary"
+                      disabled={signup.isPending}
                       sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 1,
+                        textTransform: "none",
+                        position: "relative",
+                        "&.Mui-disabled": {
+                          backgroundColor: (theme) =>
+                            theme.palette.primary.main,
+                          color: "white",
+                          opacity: 0.7,
+                        },
                       }}
                     >
-                      <CircularProgress size={20} color="primary" />
-                      <span>Creating your account...</span>
-                    </Box>
-                  ) : (
-                    "Confirm"
-                  )}
-                </Button>
-              </Grid>
-            </Grid>
+                      {signup.isPending ? (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 1,
+                          }}
+                        >
+                          <CircularProgress size={20} color="primary" />
+                          <span>Creating your account...</span>
+                        </Box>
+                      ) : (
+                        "Confirm"
+                      )}
+                    </Button>
+                  </Grid>
+                </Grid>
+              </>
+            )}
           </>
         )}
       </Box>

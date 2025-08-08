@@ -1,10 +1,10 @@
 export const API_BASE_URL = 'https://becockpit.turtleit.in/api/';
 
-export const GOOGLE_MAPS_API_KEY = 'AIzaSyBVvelx5j5EGjxLNu6YGhfQUnwJxDDIHvg';
-
-export const PAYMENT_SERVICES_BASE_URL = 'http://localhost:8000/api/aad33';
+export const PAYMENT_SERVICES_BASE_URL = 'http://localhost:8000/api/turtlesoftware';
 
 export const AI_BASE_URL = 'https://bedevai.turtleit.in/api/turtlesoftware/';
+
+export const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
 export const AI_ENDPOINTS = {
   WEBHOOK_MANAGEMENT: 'webhook-management/create-and-receive-webhook/',

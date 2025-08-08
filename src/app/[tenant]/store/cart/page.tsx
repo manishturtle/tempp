@@ -30,6 +30,7 @@ import { Cart } from "@/app/types/store/cart";
 import { formatCurrency } from "@/app/utils/currency";
 import { useStoreConfig } from "../layout";
 import { useAuthRefresh } from "@/app/contexts/AuthRefreshContext";
+import { COCKPIT_API_BASE_URL } from "@/utils/constants";
 
 /**
  * Cart page component
@@ -145,7 +146,7 @@ export default function CartPage(): React.ReactElement {
           // If no tenant info, we need to verify the tenant first
           const baseUrl = `${window.location.origin}/${tenantSlug}/store/`;
           const apiUrl = new URL(
-            "http://localhost:8000/platform-admin/api/tenant-by-url/"
+            `${COCKPIT_API_BASE_URL}/platform-admin/api/tenant-by-url/`
           );
           apiUrl.searchParams.append("default_url", baseUrl);
 
@@ -177,7 +178,7 @@ export default function CartPage(): React.ReactElement {
         if (!localStorage.getItem(configKey)) {
           try {
             const configResponse = await fetch(
-              `http://localhost:8000/api/${tenantSlug}/tenant-admin/tenant-login-config/`,
+              `${COCKPIT_API_BASE_URL}/api/${tenantSlug}/tenant-admin/tenant-login-config/`,
               {
                 method: "GET",
                 headers: {

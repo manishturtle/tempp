@@ -142,6 +142,7 @@ export interface InvoiceData {
   tax_amount?: number;
   total_amount?: number;
   rounded_delta?: number;
+  rounding_sign?: string;
   notes?: string;
   terms?: string;
   invoice_status?: string;

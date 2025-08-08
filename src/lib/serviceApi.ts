@@ -5,6 +5,7 @@
  */
 
 import axios from "axios";
+import { COCKPIT_API_BASE_URL } from "@/utils/constants";
 
 const getTenantSlug = (): string => {
   if (typeof window !== "undefined") {
@@ -35,7 +36,7 @@ const getCsrfToken = (): string | null => {
 
 // Create axios instance
 const serviceApi = axios.create({
-  baseURL: "http://localhost:8001/api",
+  baseURL: COCKPIT_API_BASE_URL,
   withCredentials: false,
   headers: {
     "Content-Type": "application/json",

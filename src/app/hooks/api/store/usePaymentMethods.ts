@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/app/lib/api';
+import { api } from '@/lib/api';
 import { 
   PaymentMethod, 
   SavePaymentMethodPayload, 

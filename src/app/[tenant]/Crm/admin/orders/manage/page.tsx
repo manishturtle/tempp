@@ -421,8 +421,12 @@ const OrderManagementPage = () => {
       status: orderData?.status,
       responsible_person: orderData?.responsible_person,
       discount_type: orderData?.discountSettings?.discount_type,
-      discount_percentage: toSafeFloat(orderData?.discountSettings?.discount_percentage),
-      discount_amount: toSafeFloat(orderData?.discountSettings?.discount_amount),
+      discount_percentage: toSafeFloat(
+        orderData?.discountSettings?.discount_percentage
+      ),
+      discount_amount: toSafeFloat(
+        orderData?.discountSettings?.discount_amount
+      ),
       billing_address: orderData?.billing_address,
       shipping_address: orderData.shipping_address,
       recipient_details: orderData.recipient_details,
@@ -512,6 +516,12 @@ const OrderManagementPage = () => {
     router.push(`/${tenantSlug}/Crm/admin/orders`);
   };
 
+  const handleEdit = () => {
+    router.push(
+      `/${tenantSlug}/Crm/admin/orders/manage?mode=EDIT&id=${orderId}`
+    );
+  };
+
   return (
     <>
       {/* Loading backdrop while waiting for order data */}
@@ -555,6 +565,12 @@ const OrderManagementPage = () => {
                 {createOrder.isPending || (updateOrder?.isPending ?? false)
                   ? t("Saving...")
                   : t("Save")}
+              </Button>
+            )}
+
+            {mode?.toLowerCase() === OrderMode.VIEW && (
+              <Button variant="contained" color="primary" onClick={handleEdit}>
+                {t("Edit")}
               </Button>
             )}
           </Box>

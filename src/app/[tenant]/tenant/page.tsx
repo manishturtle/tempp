@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import axios from 'axios';
 import { CircularProgress, Box, Typography, Container, Paper, Button } from '@mui/material';
 import Link from 'next/link';
+import { COCKPIT_API_BASE_URL } from '@/utils/constants';
 
 /**
  * Tenant-specific landing page that handles authentication and tenant verification
@@ -60,7 +61,7 @@ export default function TenantPage(): React.ReactElement {
 
       // Only check tenant if we have no token
       const checkTenantResponse = await axios.post(
-        "http://localhost:8000/api/platform-admin/subscription/check-tenant-exist/",
+        `${COCKPIT_API_BASE_URL}/platform-admin/subscription/check-tenant-exist/`,
         {
           application_url: currentUrl,
         }

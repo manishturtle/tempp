@@ -2,6 +2,7 @@
  * Authentication API service
  */
 import axios, { AxiosInstance } from "axios";
+import { COCKPIT_API_BASE_URL } from "@/utils/constants";
 
 /**
  * API Service with token management
@@ -21,7 +22,7 @@ const TenantService = {
           : null;
 
       this._api = axios.create({
-        baseURL: "http://localhost:8000/api",
+        baseURL: COCKPIT_API_BASE_URL,
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),

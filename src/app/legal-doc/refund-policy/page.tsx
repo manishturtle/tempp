@@ -407,7 +407,7 @@ function App() {
                 <Typography
                   variant="h6"
                   gutterBottom
-                  onClick={() => router.push("https://store.turtleit.in/turtlesoftware/store")}
+                  onClick={() => router.push("https://devstore.turtleit.in/turtlesoftware/store")}
                   sx={{ fontWeight: "bold", fontSize: "1rem" }}
                 >
                   Product

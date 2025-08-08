@@ -36,6 +36,10 @@ const translations: Record<string, Record<string, any>> = {
       ar: 'Arabic'
     },
     sidenav: {
+      aiPlatform: 'AI Platform',
+      tenantAdmin: 'Tenant Admin',
+      serviceManagement: 'Service Management',
+      engagement: 'Engagement',
       crm: 'CRM',
       masters: 'Masters',
       customer: 'Customer',
@@ -48,6 +52,27 @@ const translations: Record<string, Record<string, any>> = {
       opportunities: 'Opportunities',
       paymentMethods: 'Payment Methods',
       items: {
+        aiPlatform: 'AI Platform',
+        webhooks: 'Webhooks',
+        promptTemplate: 'Prompt Template',
+        workbench: 'Workbench',
+        apiKey: 'API Key',
+        apiCredits: 'API Credits',
+        roleManagement: 'Role Management',
+        userManagement: 'User Management',
+
+       "usersManagement": "Users Management",
+       "invoicing": "Invoicing",
+       "subscriptions": "Subscriptions",
+       "geofences": "Geofences",
+       "sources" : "Sources",
+       "settings" : "Tenant Settings",
+       "paymentGateway": "Payment Gateway",
+       "bankAccount": "Bank Account",
+       "configurations" : "Configurations",
+      
+
+
         dashboard: 'Dashboard',
         contacts: 'Contacts',
         deals: 'Deals',
@@ -56,6 +81,7 @@ const translations: Record<string, Record<string, any>> = {
         inventory: 'Inventory',
         orders: 'Orders',
         invoices: 'Invoices',
+        receipts: 'Receipts',
         accounts: 'Accounts',
         customerGroups: 'Customer Groups',
         adjustmentHistory: 'Adjustment History',

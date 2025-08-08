@@ -184,10 +184,10 @@ export default function TopNav({ onMenuClick, isDrawerOpen }: TopNavProps) {
             height: 70,
           }}
         >
-          <Box 
+          {/* <Box 
             component="img"
             src={(() => {
-              if (typeof window === 'undefined') return '';
+              if (typeof window === 'undefined') return null;
               
               // Get tenant-specific logo keys
               const tenantKey = `${tenant}_admin`;
@@ -212,7 +212,41 @@ export default function TopNav({ onMenuClick, isDrawerOpen }: TopNavProps) {
               mr: 2,
               maxWidth: '220px'
             }}
+          /> */}
+
+
+          <Box 
+            component="img"
+            src={(() => {
+              if (typeof window === 'undefined') return null;
+              
+              // Get tenant-specific logo keys
+              const tenantKey = `${tenant}_admin`;
+              console.log("tenantKey",tenantKey);
+              const logoDark = localStorage.getItem(`${tenantKey}_logoDark`);
+              const logoLight = localStorage.getItem(`${tenantKey}_logoLight`);
+              
+              // Use dark logo only when mode is explicitly dark
+              if (mode === 'dark' && logoDark) {
+                return logoDark;
+              } else if (logoLight) { 
+                // Otherwise use light logo
+                return logoLight;
+              }
+              
+              // Fallback to default logo if no tenant-specific logo found
+              return '';
+            })()}
+            alt={t('app.title')}
+            sx={{ 
+              height: "90%",
+              objectFit: 'contain',
+              mr: 2,
+              maxWidth: '220px'
+            }}
           />
+
+
         </Box>
         
         <Box sx={{ display: 'flex', alignItems: 'center' }}>

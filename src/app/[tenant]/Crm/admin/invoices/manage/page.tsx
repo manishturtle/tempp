@@ -16,7 +16,6 @@ import useNotification from "@/app/hooks/useNotification";
 import { useTranslation } from "react-i18next";
 import CustomerDetails from "@/app/components/admin/shared/CustomerDetails";
 import InvoiceSettings from "@/app/components/admin/shared/InvoiceSettings";
-import PaymentDetails from "@/app/components/admin/shared/PaymentDetails";
 import ProductDetails, {
   ProductLineItem,
 } from "@/app/components/admin/shared/ProductDetails";
@@ -115,6 +114,7 @@ const InvoiceManagementPage = () => {
     tax_amount: 0,
     total_amount: 0,
     rounded_delta: 0,
+    rounding_sign: "",
     currency: "INR",
     notes: "",
     terms: "",
@@ -593,6 +593,8 @@ const InvoiceManagementPage = () => {
       fulfillment_type: invoiceData?.fulfillment_type,
       storepickup: invoiceData?.storepickup,
       pickup_details: invoiceData?.pickup_details,
+      rounding_sign: invoiceData?.rounding_sign,
+      rounded_delta: invoiceData?.rounded_delta,
     };
 
     // Log the payload for review (as requested)
@@ -663,7 +665,7 @@ const InvoiceManagementPage = () => {
             t("invoices.createSuccess", "Invoice created successfully"),
             "success"
           );
-          // router.push(`/${tenantSlug}/Crm/admin/invoices`);
+          router.push(`/${tenantSlug}/Crm/admin/invoices`);
         }
       } else if (mode?.toLowerCase() === OrderMode.EDIT && invoiceId) {
         // Update existing invoice
@@ -713,10 +715,12 @@ const InvoiceManagementPage = () => {
           t("invoices.updateSuccess", "Invoice cancelled successfully"),
           "success"
         );
-        // router.push(`/${tenantSlug}/Crm/admin/invoices`);
+        router.push(`/${tenantSlug}/Crm/admin/invoices`);
       }
     }
   };
+
+  const isReadOnly = mode?.toLowerCase() === OrderMode.VIEW.toLowerCase();
 
   return (
     <>
@@ -852,8 +856,9 @@ const InvoiceManagementPage = () => {
                     sx={{
                       cursor: "pointer",
                       mb: 1,
+                      opacity: isReadOnly ? 0.5 : 1,
                     }}
-                    onClick={() => setIsEditingTerms(true)}
+                    onClick={() => isReadOnly ? null : setIsEditingTerms(true)}
                   >
                     +{" "}
                     <span style={{ textDecoration: "underline" }}>
@@ -885,6 +890,7 @@ const InvoiceManagementPage = () => {
                     )}
                     autoFocus
                     sx={{ mb: 2 }}
+                    disabled={isReadOnly}
                   />
                 )}
 
@@ -895,8 +901,9 @@ const InvoiceManagementPage = () => {
                     color="primary"
                     sx={{
                       cursor: "pointer",
+                      opacity: isReadOnly ? 0.5 : 1,
                     }}
-                    onClick={() => setIsEditingNotes(true)}
+                    onClick={() => isReadOnly ? null : setIsEditingNotes(true)}
                   >
                     +{" "}
                     <span style={{ textDecoration: "underline" }}>
@@ -928,6 +935,7 @@ const InvoiceManagementPage = () => {
                     )}
                     autoFocus
                     sx={{ mb: "0px" }}
+                    disabled={isReadOnly}
                   />
                 )}
               </Box>

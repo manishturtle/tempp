@@ -97,14 +97,33 @@ function ConditionalLayout({
   const pathname = usePathname();
   const pathParts = pathname.split('/');
   const currentTenantSlug = pathParts[1];
+  const [isClient, setIsClient] = React.useState(false);
   
-  // Get the token from localStorage for the current tenant
-  const storedToken = currentTenantSlug 
-    ? localStorage.getItem(`${currentTenantSlug}_admin_token`)
-    : null;
+  // Set isClient to true when component mounts (client-side only)
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  // Get the token from localStorage for the current tenant (client-side only)
+  const storedToken = React.useMemo(() => {
+    if (!isClient || !currentTenantSlug) return null;
+    try {
+      return localStorage.getItem(`${currentTenantSlug}_admin_token`);
+    } catch (error) {
+      console.error('Error accessing localStorage:', error);
+      return null;
+    }
+  }, [isClient, currentTenantSlug]);
+  
+  // Check if current path is SOP workflow page (should not show ClientLayout)
+  const isSOPWorkflowPage = React.useMemo(() => {
+    // Pattern: /{tenant}/Crm/service-management/sop/{id}/workflow/
+    const sopWorkflowRegex = /^\/[^/]+\/Crm\/service-management\/sop\/\d+\/workflow\/?$/;
+    return sopWorkflowRegex.test(pathname);
+  }, [pathname]);
   
   // Show loading state while auth is being checked
-  if (isLoading) {
+  if (isLoading || !isClient) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <CircularProgress />
@@ -117,6 +136,11 @@ function ConditionalLayout({
     return <>{children}</>;
   }
   
-  // If token exists, wrap children in ClientLayout
+  // If on SOP workflow page, render children directly without ClientLayout
+  if (isSOPWorkflowPage) {
+    return <>{children}</>;
+  }
+  
+  // If token exists and not on SOP workflow page, wrap children in ClientLayout
   return <ClientLayout>{children}</ClientLayout>;
 }

@@ -12,8 +12,11 @@ import {
   Badge,
   Menu,
   MenuItem,
+  Divider,
   Avatar,
   useMediaQuery,
+  SxProps,
+  Theme,
   Tooltip,
   Autocomplete,
   TextField,
@@ -32,7 +35,10 @@ import {
   Person,
   PersonOutline,
   Menu as MenuIcon,
+  Search,
   Favorite,
+  AccountCircle,
+  KeyboardArrowDown,
   StorefrontOutlined,
   ReceiptOutlined,
 } from "@mui/icons-material";
@@ -48,10 +54,15 @@ import { useSearch } from "@/app/contexts/SearchContext";
 import { Search as SearchIcon } from "@mui/icons-material";
 import { useSearchParams, usePathname } from "next/navigation";
 import { DeliverToPopup } from "./DeliveryToPopup";
+import { Login } from "@mui/icons-material";
+
+import { COCKPIT_API_BASE_URL, COCKPIT_FRONTEND_URL } from "@/utils/constants";
+
 export function Header() {
   const { t } = useTranslation("common");
   const { mode } = useThemeContext();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [userInitials, setUserInitials] = useState<string>("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   // Use MUI's useMediaQuery with a direct media query for mobile detection
   const isMobile = useMediaQuery("(max-width:600px)");
@@ -123,6 +134,60 @@ export function Header() {
     }
   }, [searchParams, setSearchQuery]);
 
+  // Function to call session API and store user data
+  const fetchSessionData = async (tenantSlug: string, sessionId: string) => {
+    try {
+      const response = await fetch(
+        `${COCKPIT_API_BASE_URL}/${tenantSlug}/auth/session/?session_id=${sessionId}`, //cockpit api
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Store data in localStorage with tenant prefix
+        if (data.access_token) {
+          localStorage.setItem(`${tenantSlug}_access_token`, data.access_token);
+        }
+        if (data.refresh_token) {
+          localStorage.setItem(`${tenantSlug}_refresh_token`, data.refresh_token);
+        }
+        if (data.user) {
+          localStorage.setItem(`${tenantSlug}_auth_user`, JSON.stringify(data.user));
+        }
+        
+        // Also store additional tenant-specific data
+        localStorage.setItem(`${tenantSlug}_appLanguage`, 'en');
+        localStorage.setItem(`${tenantSlug}_app_id`, '5');
+        
+        // Update component state
+        setHasAccessToken(!!data.access_token);
+        setUser(data.user);
+        
+        if (data.user) {
+          const firstInitial = data.user.first_name
+            ? data.user.first_name.charAt(0).toUpperCase()
+            : "";
+          const lastInitial = data.user.last_name
+            ? data.user.last_name.charAt(0).toUpperCase()
+            : "";
+          setUserInitials(`${firstInitial}${lastInitial}`);
+        }
+        
+        console.log('Session data stored successfully');
+      } else {
+        console.error('Failed to fetch session data:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching session data:', error);
+    }
+  };
+
   useEffect(() => {
     // Get tenant slug from URL first
     let tenantSlug = "";
@@ -130,6 +195,16 @@ export function Header() {
       const pathParts = window.location.pathname.split("/").filter(Boolean);
       tenantSlug = pathParts[0] || "";
       setTenantSlug(tenantSlug);
+
+      // Check if we have a session_id in URL params
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionId = urlParams.get('session_id');
+      
+      // If we have a session_id, fetch session data
+      if (sessionId && tenantSlug) {
+        fetchSessionData(tenantSlug, sessionId);
+        return; // Exit early as fetchSessionData will handle state updates
+      }
 
       // Get token with tenant prefix
       const token = tenantSlug
@@ -150,6 +225,7 @@ export function Header() {
             const lastInitial = userDataObj.last_name
               ? userDataObj.last_name.charAt(0).toUpperCase()
               : "";
+            setUserInitials(`${firstInitial}${lastInitial}`);
           } catch (e) {
             console.error("Error parsing user data:", e);
           }
@@ -197,6 +273,7 @@ export function Header() {
         sessionStorage.removeItem(key);
       }
     });
+
 
     // Clear global auth tokens as fallback
     localStorage.removeItem("access_token");
@@ -479,7 +556,7 @@ export function Header() {
                         // Fall back to legacy logo if available
                         logoSrc = `${
                           process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ||
-                          "https://bedevcockpit.turtleit.in"
+                          "http://localhost:3000/"
                         }${legacyLogo}`;
                       } else {
                         // Return empty box if no logo is available
@@ -658,7 +735,6 @@ export function Header() {
                   >
                     {(() => {
                       let displayLoc: any = {};
-                      let countryCode = "";
                       if (typeof window !== "undefined" && tenantSlug) {
                         const locRaw = localStorage.getItem(`${tenantSlug}_location`);
                         if (locRaw) {
@@ -666,28 +742,8 @@ export function Header() {
                             displayLoc = JSON.parse(locRaw);
                           } catch {}
                         }
-                        if (displayLoc?.country) {
-                          // Map country names to ISO codes for common countries
-                          const countryMapping: { [key: string]: string } = {
-                            "India": "IN",
-                            "United States": "US",
-                            "United Kingdom": "GB",
-                            "Canada": "CA",
-                            "Australia": "AU",
-                            "Germany": "DE",
-                            "France": "FR",
-                            "Japan": "JP",
-                            "China": "CN",
-                            "Brazil": "BR",
-                            "Afghanistan": "AF",
-                            "Åland Islands": "AX",
-                            "Albania": "AL",
-                            "Algeria": "DZ",
-                            "American Samoa": "AS"
-                          };
-                          countryCode = countryMapping[displayLoc.country] || "";
-                        }
                       }
+                      const countryCode = displayLoc?.country || "";
                       return countryCode ? (
                         <img
                           loading="lazy"
@@ -828,7 +884,8 @@ export function Header() {
                     variant="contained"
                     color="primary"
                     component={Link}
-                    href={`/${tenantSlug}/login`}
+
+                    href={`${COCKPIT_FRONTEND_URL}/${tenantSlug}/auth/login?source=ecommerce`}
                     sx={{
                       ml: 2,
                       borderColor: "rgba(255, 255, 255, 0.5)",

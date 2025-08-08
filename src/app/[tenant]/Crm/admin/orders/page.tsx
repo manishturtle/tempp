@@ -181,7 +181,9 @@ export default function AdminOrdersPage() {
           href={`/${tenantSlug}/Crm/admin/orders/${params.row.id}`}
           onClick={(e) => {
             e.preventDefault();
-            router.push(`/${tenantSlug}/Crm/admin/orders/${params.row.id}`);
+            router.push(
+              `/${tenantSlug}/Crm/admin/orders/manage?mode=VIEW&id=${params.row.id}`
+            );
           }}
           sx={{
             color: "primary.main",

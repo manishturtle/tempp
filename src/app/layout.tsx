@@ -5,16 +5,16 @@ import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "Ecommerce | Turtle Software",
-  description: "Ecommerce | Turtle Software",
-  icons: {
-    icon: [
-      { url: '/images/favicon.png' },
-      { url: '/images/favicon.png', type: 'image/png' }
-    ]
-  }
-};
+// export const metadata: Metadata = {
+//   title: "Ecommerce | Turtle Software",
+//   description: "Ecommerce | Turtle Software",
+//   icons: {
+//     icon: [
+//       { url: '/images/favicon.png' },
+//       { url: '/images/favicon.png', type: 'image/png' }
+//     ]
+//   }
+// };
 
 export default function RootLayout({
   children,

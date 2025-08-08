@@ -47,7 +47,7 @@ const InvoiceSettings: React.FC<InvoiceSettingsProps> = ({
   const { t } = useTranslation();
 
   // Helper to determine if fields should be readonly
-  const isReadOnly = mode === OrderMode.VIEW;
+  const isReadOnly = mode.toLowerCase() === OrderMode.VIEW.toLowerCase();
 
   // Invoice type options
   const invoiceTypeOptions = [

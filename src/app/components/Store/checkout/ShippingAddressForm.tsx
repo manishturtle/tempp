@@ -79,21 +79,21 @@ export const ShippingAddressForm: FC<ShippingAddressFormProps> = ({
   console.log("Auth user key being checked:", userKey);
   
   // Parse user data and get customer group type
+   // Parse user data and get customer group type
   let customerGroupType = null;
   if (userDataStr) {
     try {
       const userData = JSON.parse(userDataStr);
       console.log("Parsed user data:", userData);
-      
-      if (userData.customer_group) {
-        customerGroupType = userData.customer_group.type;
+
+      if (userData.group_type) {
+        customerGroupType = userData.group_type;
         console.log("Customer Group Details:", {
-          id: userData.customer_group.id,
-          name: userData.customer_group.name,
-          type: customerGroupType
+          id: userData.customer_group_id,
+          type: customerGroupType,
         });
       } else {
-        console.log("No customer group found in user data");
+        console.log("No group type found in user data");
       }
     } catch (error) {
       console.error("Error parsing user data:", error);

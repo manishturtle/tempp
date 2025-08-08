@@ -10,6 +10,7 @@ import CartService from "@/app/auth/services/cartService";
 import { useCart } from "./useCart";
 import { isAuthenticated } from "@/app/auth/hooks/useAuth";
 import { useRouter, useParams } from "next/navigation";
+import {COCKPIT_API_BASE_URL} from "@/utils/constants";
 
 const getTenantSchema = (): string => {
   // Handle server-side rendering with a default tenant schema
@@ -229,7 +230,7 @@ export function usePlaceOrder() {
             city: payload.shippingAddress?.city || "",
             state_province: payload.shippingAddress?.state || "",
             postal_code: payload.shippingAddress?.postal_code || "",
-            country: payload.shippingAddress?.country || "India",
+            country: payload.shippingAddress?.country ||"" ,
             full_name: payload.shippingAddress?.full_name || "",
             phone_number: payload.shippingAddress?.phone_number || "",
             business_name: payload.shippingAddress?.business_name || "",
@@ -277,7 +278,7 @@ export function usePlaceOrder() {
               : payload.pickupDetails?.storeData?.contact_number || "",
           },
           storepickup: payload.pickupDetails?.storeData?.id?.toString() || "",
-          customer_group_selling_channel_id: 21, // Default customer group
+          customer_group_selling_channel_id: 1, // Default customer group
           items:
             cart?.items?.map((item: any, index: number) => {
               const unitPrice = parseFloat(item.product_details?.price);
@@ -317,7 +318,7 @@ export function usePlaceOrder() {
         });
         console.log("Order created:", orderResponse.data);
 
-        // Clear the session ID cookie after successful order creation
+        // Clear the session ID cookie af ter successful order creation
         // Call order processed API only for turtlesoftware tenant (not erp_turtle)
         const pathParts = window.location.pathname.split("/").filter(Boolean);
         const tenantSlug = pathParts[0] || "";
@@ -331,21 +332,29 @@ export function usePlaceOrder() {
             "Calling order processed API with order ID:",
             orderResponse.data.id
           );
-
+          
           // Use the CartItem type from store types
           // Extract product IDs from the cart items
           const productIds = cart.items.map((item) => item.product_details.id);
           console.log("Product IDs extracted:", productIds);
 
+          const orderId = orderResponse.data?.id;
+
+          if (!orderId) {
+            console.error("Order ID is undefined from API response");
+            return;
+          }
+
           // Fire and forget - make API call without waiting for response
           const requestBody = {
-            order_id: orderResponse.data.id,
+            order_id: orderId,
             product_ids: productIds,
             tenant_schema: getTenantSchema(),
           };
 
           // Trigger API call and continue with flow immediately
-          fetch("https://becockpit.turtleit.in/api/ecommerce/order_processed", {
+          fetch(`${COCKPIT_API_BASE_URL}/platform-admin/tenants/`, {
+
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -390,7 +399,15 @@ export function usePlaceOrder() {
         // Get the tenant slug from the URL or session storage
         const currentTenantSlug =
           window.location.pathname.split("/")[1] || getTenantSchema();
-
+          const locationKey = `${currentTenantSlug}_location`;
+          localStorage.setItem(
+            locationKey,
+            JSON.stringify({
+              country: payload.shippingAddress?.country || "",
+              state: payload.shippingAddress?.state || "",
+              pincode: payload.shippingAddress?.postal_code || "",
+            })
+          );
         // Redirect to order confirmation page with the tenant slug
         router.push(`/${currentTenantSlug}/store/order-confirmation/`);
 

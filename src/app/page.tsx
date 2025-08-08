@@ -46,6 +46,8 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import TrackChangesIcon from "@mui/icons-material/TrackChanges";
 
+import { STORE_FRONTEND_URL } from "@/utils/constants";
+
 // --- THEME ---
 let theme = createTheme({
   palette: {
@@ -165,7 +167,7 @@ const Header = () => {
               // localStorage.clear();
               // sessionStorage.clear();
               // window.location.href =
-                "https://store.turtleit.in/turtlesoftware/store/cart/?product_sku=sales_suite&quantity=1";
+                `${STORE_FRONTEND_URL}/turtlesoftware/store/cart/?product_sku=sales_suite&quantity=1`;
             }}
           >
             Start
@@ -236,7 +238,7 @@ const Header = () => {
                   // localStorage.clear();
                   // sessionStorage.clear();
                   window.location.href =
-                  "https://store.turtleit.in/turtlesoftware/store/cart/?product_sku=sales_suite&quantity=1";
+                  `${STORE_FRONTEND_URL}/turtlesoftware/store/cart/?product_sku=sales_suite&quantity=1`;
                 }}
               >
                 Start 90-Days Trial for Free
@@ -346,7 +348,7 @@ const Hero = () => {
               // localStorage.clear();
               // sessionStorage.clear();
               window.location.href =
-                "https://store.turtleit.in/turtlesoftware/store/cart/?product_sku=sales_suite&quantity=1";
+                `${STORE_FRONTEND_URL}/turtlesoftware/store/cart/?product_sku=sales_suite&quantity=1`;
             }}
           >
             Start your Evaluation
@@ -872,7 +874,7 @@ const Pricing = () => {
                       // localStorage.clear();
                       // sessionStorage.clear();
                       window.location.href =
-                        "https://store.turtleit.in/turtlesoftware/store/cart/?product_sku=sales_suite&quantity=1";
+                        `${STORE_FRONTEND_URL}/turtlesoftware/store/cart/?product_sku=sales_suite&quantity=1`;
                     }}
                     size="large"
                     variant={plan.popular ? "contained" : "outlined"}
@@ -940,7 +942,7 @@ const FinalCTA = () => {
             localStorage.clear();
             sessionStorage.clear();
             window.location.href =
-              "https://store.turtleit.in/turtlesoftware/store/cart/?product_sku=sales_suite&quantity=1";
+              `${STORE_FRONTEND_URL}/turtlesoftware/store/cart/?product_sku=sales_suite&quantity=1`;
           }}
           size="large"
           variant="contained"

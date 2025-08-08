@@ -236,7 +236,6 @@ const Layout1: React.FC = () => {
   const [showNewAddressForm, setShowNewAddressForm] = useState<boolean>(false);
   const [showNewBillingAddressForm, setShowNewBillingAddressForm] =
     useState<boolean>(false);
-  const [isBillingInEditMode, setIsBillingInEditMode] = useState<boolean>(false);
   const theme = useTheme();
   const params = useParams();
   const tenantId = Array.isArray(params?.tenant)
@@ -999,6 +998,7 @@ const Layout1: React.FC = () => {
                                   sx={{
                                     display: "flex",
                                     justifyContent: "flex-end",
+                                    mt: 2,
                                   }}
                                 >
                                   <Button
@@ -1454,9 +1454,6 @@ const Layout1: React.FC = () => {
                       onFormVisibilityChange={(visible) => {
                         setShowNewBillingAddressForm(visible);
                       }}
-                      onEditModeChange={(isEditing) => {
-                        setIsBillingInEditMode(isEditing);
-                      }}
                       selectedAddressId={selectedBillingAddress?.id}
                       shippingAddress={selectedShippingAddress || undefined}
                       isAuthenticated={hasToken}
@@ -1473,10 +1470,9 @@ const Layout1: React.FC = () => {
                   </>
                 ))}
 
-              {/* Continue to Payment button for Billing section - Only show when billing is not completed and not showing new address form and not in edit mode */}
+              {/* Continue to Payment button for Billing section - Only show when billing is not completed and not showing new address form */}
               {!billingAddressCompleted &&
                 !showNewBillingAddressForm &&
-                !isBillingInEditMode &&
                 (checkout_configuration.fulfillment_type === "none" ||
                   (selectedFulfillmentMethod === "home_delivery" &&
                     shippingAddressCompleted &&

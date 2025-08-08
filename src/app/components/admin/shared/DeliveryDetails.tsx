@@ -118,6 +118,8 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
   const [selectedStorePickup, setSelectedStorePickup] =
     useState<StorePickup | null>(null);
 
+  const isReadOnly = mode?.toLowerCase() === OrderMode.VIEW;
+
   // New address form state
   const [newAddress, setNewAddress] = useState<any>({
     full_name: "",
@@ -365,11 +367,13 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
             value="Delivery"
             control={<Radio />}
             label={t("Delivery")}
+            disabled={isReadOnly}
           />
           <FormControlLabel
             value="Pickup"
             control={<Radio />}
             label={t("Pickup")}
+            disabled={isReadOnly}
           />
         </RadioGroup>
       </Box>
@@ -395,6 +399,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
                 }
                 sx={{ width: "50%" }}
                 size="small"
+                disabled={isReadOnly}
               />
               <Box sx={{ width: "50%" }}>
                 <PhoneInput
@@ -419,6 +424,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
                   containerStyle={{
                     width: "100%",
                   }}
+                  disabled={isReadOnly}
                 />
               </Box>
             </Stack>
@@ -482,7 +488,10 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
                         : t("Add Address")
                     }
                   >
-                    <IconButton onClick={openAddressDialog}>
+                    <IconButton
+                      onClick={openAddressDialog}
+                      disabled={isReadOnly}
+                    >
                       <EditSquareIcon color="primary" />
                     </IconButton>
                   </Tooltip>
@@ -493,16 +502,18 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
                 {t("No shipping address selected")}
               </Typography>
             )}
-            {/* 
-            <Button
-              startIcon={<EditSquareIcon />}
-              onClick={openAddressDialog}
-              sx={{ textTransform: "none", p: 0 }}
-            >
-              {shippingAddresses.length > 0
-                ? t("Change Address")
-                : t("Add Address")}
-            </Button> */}
+            {shippingAddresses &&
+              shippingAddresses?.length === 0 &&
+              !selectedAddress && (
+                <Button
+                  startIcon={<EditSquareIcon />}
+                  onClick={openAddressDialog}
+                  sx={{ textTransform: "none", p: 0 }}
+                  disabled={isReadOnly}
+                >
+                  {t("Add Address")}
+                </Button>
+              )}
           </Box>
 
           {/* Address Dialog */}
@@ -543,8 +554,10 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
                   label={t("Store Pickup Location")}
                   size="small"
                   fullWidth
+                  disabled={isReadOnly}
                 />
               )}
+              disabled={isReadOnly}
               renderOption={(props, option: StorePickup) => (
                 <Box component="li" {...props}>
                   <Box sx={{ width: "100%" }}>
@@ -598,6 +611,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
                 }
                 sx={{ width: "50%" }}
                 size="small"
+                disabled={isReadOnly}
               />
               <Box sx={{ width: "50%" }}>
                 <PhoneInput
@@ -622,6 +636,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
                   containerStyle={{
                     width: "100%",
                   }}
+                  disabled={isReadOnly}
                 />
               </Box>
             </Stack>

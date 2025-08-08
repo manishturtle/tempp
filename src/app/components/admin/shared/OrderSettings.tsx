@@ -40,8 +40,7 @@ const OrderSettings: React.FC<OrderSettingsProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  // Helper to determine if fields should be readonly
-  const isReadOnly = mode === OrderMode.VIEW;
+  const isReadOnly = mode?.toLowerCase() === OrderMode.VIEW;
 
   return (
     <Box
@@ -59,7 +58,7 @@ const OrderSettings: React.FC<OrderSettingsProps> = ({
 
       <Grid container rowSpacing={2} columnSpacing={2}>
         {/* Order Number - Only in View Mode */}
-        {mode === OrderMode.VIEW && (
+        {mode?.toLowerCase() === OrderMode.VIEW && (
           <Grid size={12}>
             <TextField
               id="order-id"
@@ -82,7 +81,10 @@ const OrderSettings: React.FC<OrderSettingsProps> = ({
                 orderData?.order_date ? parseISO(orderData.order_date) : null
               }
               onChange={(date) =>
-                setOrderData({ ...orderData, order_date: date ? date.toISOString() : null })
+                setOrderData({
+                  ...orderData,
+                  order_date: date ? date.toISOString() : null,
+                })
               }
               disabled={isReadOnly}
               slotProps={{

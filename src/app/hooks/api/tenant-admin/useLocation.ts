@@ -52,7 +52,7 @@ const fetchCities = async (stateId: number): Promise<City[]> => {
 export const useLocation = () => {
   const useCountries = () => 
     useQuery<Country[], Error>({
-      queryKey: ['countries'],
+      queryKey: ['countrieslist'],
       queryFn: fetchCountries,
     });
 

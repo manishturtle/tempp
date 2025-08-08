@@ -181,20 +181,44 @@ export function LocationPopover({
     setSaving(true);
     
     const locationKey = `${tenantSlug}_location`;
+    
+    // Get existing location data to preserve state if it exists
+    let existingLocation = {};
+    try {
+      const existing = localStorage.getItem(locationKey);
+      if (existing) {
+        existingLocation = JSON.parse(existing);
+      }
+    } catch (e) {
+      console.error('Error parsing existing location data:', e);
+    }
+    
+    // Merge with existing data, only updating country and pincode
     localStorage.setItem(
       locationKey,
       JSON.stringify({
-        country: country.label,
+        ...existingLocation,
+        country: country.code, // Store ISO code instead of full name
         pincode,
-        
       })
     );
     
     // Also update the generic location for consistency
+    let existingGenericLocation = {};
+    try {
+      const existing = localStorage.getItem("location");
+      if (existing) {
+        existingGenericLocation = JSON.parse(existing);
+      }
+    } catch (e) {
+      console.error('Error parsing existing generic location data:', e);
+    }
+    
     localStorage.setItem(
       "location",
       JSON.stringify({
-        country: country.label,
+        ...existingGenericLocation,
+        country: country.code, // Store ISO code instead of full name
         pincode,
       })
     );
@@ -284,7 +308,7 @@ export function LocationPopover({
         <Grid size={{ xs: 6 }}>
           <Button
             variant="outlined"
-            color="secondary"
+            color="primary"
             fullWidth
             onClick={onClose}
             sx={{ fontWeight: 700, mr: 1 }}

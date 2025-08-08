@@ -81,6 +81,7 @@ const BillingDetails: React.FC<BillingDetailsProps> = ({
     "select"
   );
   const [editingAddressId, setEditingAddressId] = useState<number | null>(null);
+  const isReadOnly = mode?.toLowerCase() === OrderMode.VIEW;
 
   // New address form state
   const [newAddress, setNewAddress] = useState<any>({
@@ -115,7 +116,7 @@ const BillingDetails: React.FC<BillingDetailsProps> = ({
   useEffect(() => {
     if (orderData?.same_as_shipping && orderData.shipping_address) {
       // Use shipping address as billing address, but exclude the id field
-      const { id, ...shippingAddressWithoutId } = orderData.shipping_address;
+      const { address_id, ...shippingAddressWithoutId } = orderData.shipping_address;
       const billingFromShipping = {
         ...shippingAddressWithoutId,
         address_type: "BILLING",
@@ -123,6 +124,10 @@ const BillingDetails: React.FC<BillingDetailsProps> = ({
         is_primary_shipping: false,
       };
       setSelectedAddress(billingFromShipping);
+      setOrderData({
+        ...orderData,
+        billing_address: billingFromShipping,
+      });
     } else if (
       !orderData?.same_as_shipping &&
       selectedAddress?.address_type === "BILLING" &&
@@ -139,6 +144,10 @@ const BillingDetails: React.FC<BillingDetailsProps> = ({
         setSelectedAddress(defaultBillingAddress);
       } else {
         setSelectedAddress(null);
+        setOrderData({
+          ...orderData,
+          billing_address: null,
+        });
       }
     }
   }, [orderData?.same_as_shipping, orderData.shipping_address]);
@@ -405,7 +414,7 @@ const BillingDetails: React.FC<BillingDetailsProps> = ({
                       : t("Add Address")
                   }
                 >
-                  <IconButton onClick={openAddressDialog}>
+                  <IconButton onClick={openAddressDialog} disabled={isReadOnly}>
                     <EditSquareIcon color="primary" />
                   </IconButton>
                 </Tooltip>
@@ -418,17 +427,18 @@ const BillingDetails: React.FC<BillingDetailsProps> = ({
           </Typography>
         )}
 
-        {/* {!orderData?.same_as_shipping && (
-          <Button
-            startIcon={<EditSquareIcon />}
-            onClick={openAddressDialog}
-            sx={{ textTransform: "none", p: 0 }}
-          >
-            {billingAddresses.length > 0
-              ? t("Change Address")
-              : t("Add Address")}
-          </Button>
-        )} */}
+        {billingAddresses &&
+          billingAddresses?.length === 0 &&
+          !selectedAddress && (
+            <Button
+              startIcon={<EditSquareIcon />}
+              onClick={openAddressDialog}
+              sx={{ textTransform: "none", p: 0 }}
+              disabled={isReadOnly}
+            >
+              {t("Add Address")}
+            </Button>
+          )}
       </Box>
 
       {/* Same as Shipping Checkbox */}
@@ -439,7 +449,7 @@ const BillingDetails: React.FC<BillingDetailsProps> = ({
               <Checkbox
                 checked={orderData?.same_as_shipping}
                 onChange={handleSameAsShippingChange}
-                disabled={!orderData.shipping_address}
+                disabled={!orderData.shipping_address || isReadOnly}
               />
             }
             label={t("Same as shipping address")}

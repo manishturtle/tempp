@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { GOOGLE_MAPS_API_KEY } from "@/app/constant";
 import { Box, Toolbar, useMediaQuery } from "@mui/material";
 import { useTranslation } from "react-i18next";
@@ -20,7 +20,7 @@ import { Header } from "@/app/components/layouts/Header";
 import { createContext, useContext } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { StoreConfigProvider } from "./StoreConfigProvider";
-import { useCustomerGroupSellingChannel } from "@/app/hooks/api/store/useCustomerGroupSellingChannel";
+import { useCustomerGroupSellingChannel } from "../../hooks/api/store/useCustomerGroupSellingChannel";
 
 /**
  * Context to provide store configuration throughout the application
@@ -59,8 +59,6 @@ export interface StoreConfigContextType {
     daily_transaction_limit: string;
     customer_group_selling_channel: number | null;
     is_active: boolean;
-    kill_switch: boolean;
-    default_delivery_zone: string;
   };
 }
 
@@ -89,23 +87,6 @@ export default function StoreLayout({
   const pathname = usePathname();
   const router = useRouter();
   const isMobile = useMediaQuery("(max-width:600px)");
-  
-  // KillSwitch redirect effect
-  const storeConfig = useContext(StoreConfigContext);
-  useEffect(() => {
-    // Check if store configuration is loaded and kill_switch is true
-    if (storeConfig && storeConfig.feature_toggle_settings.kill_switch) {
-      // Extract tenant slug from URL path
-      const pathParts = pathname.split("/");
-      const currentTenantSlug = pathParts[1];
-      
-      // Only redirect if not already on the maintenance page
-      if (!pathname.includes("site-under-maintenance")) {
-        // Redirect to maintenance page
-        router.push(`/${currentTenantSlug}/site-under-maintenance`);
-      }
-    }
-  }, [storeConfig, pathname, router]);
 
   // --- Google Maps Geocode Address Logger ---
   useEffect(() => {
@@ -141,7 +122,7 @@ export default function StoreLayout({
     if (document.getElementById("google-maps-script")) return;
     const script = document.createElement("script");
     script.id = "google-maps-script";
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places&language=en`;
     script.async = true;
     script.onload = () => {
       if (navigator.geolocation && window.google?.maps) {
@@ -164,7 +145,7 @@ export default function StoreLayout({
                   if (components && Array.isArray(components)) {
                     for (const comp of components) {
                       if (comp.types.includes("country")) {
-                        country = comp.long_name;
+                        country = comp.short_name; // Gets 'IN' instead of 'India'
                       }
                       if (comp.types.includes("postal_code")) {
                         pincode = comp.long_name;
@@ -252,81 +233,148 @@ export default function StoreLayout({
     const pathParts = typeof window !== "undefined" ? window.location.pathname.split("/") : [];
     const currentTenantSlug = pathParts[1];
     const segmentKey = `${currentTenantSlug}_segmentdetails`;
-    const customerGroupKey = `${currentTenantSlug}_customer_group_id`;
+    const authUserKey = `${currentTenantSlug}_auth_user`;
     const [segmentDetails, setSegmentDetails] = useState<any | null>(null);
     const [customerGroupId, setCustomerGroupId] = useState<number | null>(null);
+    const [hasAuthUser, setHasAuthUser] = useState<boolean>(false);
+    const [customerGroupIdFromAuth, setCustomerGroupIdFromAuth] = useState<number | null>(null);
 
-    // On mount, check localStorage for both segment details and customer group ID
+    // Initialize state from localStorage on mount
     useEffect(() => {
-      if (!segmentKey || !customerGroupKey) return;
-      const existingSegment = localStorage.getItem(segmentKey);
-      const existingCustomerGroupId = localStorage.getItem(customerGroupKey);
-      if (existingSegment && existingCustomerGroupId) {
+      if (typeof window === 'undefined') return;
+      
+      // Check auth_user
+      const existingAuthUser = localStorage.getItem(authUserKey);
+      console.log('Initial state setup - authUserKey:', authUserKey);
+      console.log('Initial state setup - existingAuthUser:', existingAuthUser);
+      
+      if (existingAuthUser) {
         try {
-          setSegmentDetails(JSON.parse(existingSegment));
-          setCustomerGroupId(parseInt(existingCustomerGroupId, 10));
+          const authUserObj = JSON.parse(existingAuthUser);
+          const customerGroupId = authUserObj.customer_group_id || null;
+          console.log('Initial state setup - authUserObj:', authUserObj);
+          console.log('Initial state setup - customerGroupId:', customerGroupId);
+          
+          setHasAuthUser(true);
+          setCustomerGroupIdFromAuth(customerGroupId ? parseInt(customerGroupId, 10) : null);
+          setCustomerGroupId(customerGroupId);
         } catch (e) {
-          console.error('Error parsing segment details or customer group ID from localStorage', e);
+          console.error('Error parsing auth_user from localStorage', e);
+          setHasAuthUser(false);
+        }
+      } else {
+        console.log('No auth_user found in localStorage');
+        setHasAuthUser(false);
+      }
+
+      // Check segment details
+      const segmentDetailsFromStorage = localStorage.getItem(segmentKey);
+      if (segmentDetailsFromStorage) {
+        try {
+          const segmentDetailsObj = JSON.parse(segmentDetailsFromStorage);
+          setSegmentDetails(segmentDetailsObj);
+        } catch (e) {
+          console.error('Error parsing segment details from localStorage', e);
         }
       }
-    }, [segmentKey, customerGroupKey]);
+    }, [segmentKey, authUserKey]);
 
-    // Compare localStorage customer_group_id with segmentDetails.customer_group_id
-    const customerGroupIdFromStorage = typeof window !== 'undefined' ? localStorage.getItem(customerGroupKey) : null;
-    const segmentDetailsFromStorage = typeof window !== 'undefined' ? localStorage.getItem(segmentKey) : null;
-    
-    let segmentDetailsObj = null;
-    try {
-      segmentDetailsObj = segmentDetailsFromStorage ? JSON.parse(segmentDetailsFromStorage) : null;
-    } catch (e) {
-      console.error('Error parsing segment details from localStorage', e);
-    }
+    // Determine if we should fetch data
+    const shouldFetch = useMemo(() => {
+      if (!segmentDetails) return true; // No segment details exist
+      if (hasAuthUser && customerGroupIdFromAuth && segmentDetails.customer_group_id !== customerGroupIdFromAuth) {
+        return true; // Auth user exists but customer_group_id doesn't match
+      }
+      return false;
+    }, [segmentDetails, hasAuthUser, customerGroupIdFromAuth]);
 
-    const customerGroupIdNumber = customerGroupIdFromStorage ? parseInt(customerGroupIdFromStorage, 10) : null;
-    const segmentCustomerGroupId = segmentDetailsObj?.customer_group_id;
+    // Create query parameters based on whether auth_user exists
+    // First check if ${currentTenantSlug}_auth_user exists in localStorage
+    const queryParams = useMemo(() => {
+      // Check if auth_user exists in localStorage
+      const authUserExists = typeof window !== 'undefined' ? localStorage.getItem(authUserKey) : null;
+      // Check if access_token exists in localStorage
+      const accessTokenKey = `${currentTenantSlug}_access_token`;
+      const accessTokenExists = typeof window !== 'undefined' ? localStorage.getItem(accessTokenKey) : null;
+      
+      // Parse auth_user data directly to get customer_group_id
+      let authUserCustomerGroupId = null;
+      if (authUserExists) {
+        try {
+          const authUserObj = JSON.parse(authUserExists);
+          authUserCustomerGroupId = authUserObj.customer_group_id || null;
+        } catch (e) {
+          console.error('Error parsing auth_user in queryParams', e);
+        }
+      }
+      
+      // Debug logging
+      console.log('Debug - Auth User Check:', {
+        authUserKey,
+        accessTokenKey,
+        authUserExists: !!authUserExists,
+        accessTokenExists: !!accessTokenExists,
+        authUserCustomerGroupId,
+        hasAuthUser,
+        customerGroupIdFromAuth,
+        authUserData: authUserExists ? JSON.parse(authUserExists) : null
+      });
+      
+      // If we have both auth_user and access_token, use customer_group_id
+      if (authUserExists && accessTokenExists && authUserCustomerGroupId) {
+        console.log('Using customerGroupId path:', authUserCustomerGroupId);
+        return {
+          customerGroupId: authUserCustomerGroupId,
+          sellingChannelId: 3 // hardcoded as requested (3 = Web)
+        };
+      } else {
+        // If auth_user or access_token not found
+        console.log('Using sellingChannelId path - missing auth_user or access_token');
+        return {
+          customerGroupId: '', // Empty string when no auth_user or access_token
+          sellingChannelId: 3 // hardcoded as requested (3 = Web)
+        };
+      }
+    }, [currentTenantSlug, authUserKey]);
 
-    // If customer_group_id from localStorage doesn't match customer_group_id inside segmentDetails, call API
-    const shouldFetch = !segmentDetailsObj || !customerGroupIdFromStorage || customerGroupIdNumber !== segmentCustomerGroupId;
-    const { data: segmentData, isSuccess } = useCustomerGroupSellingChannel({
-      customerGroupId: typeof customerGroupIdNumber === 'number' && !isNaN(customerGroupIdNumber) ? customerGroupIdNumber : '',
-      sellingChannelName: 'Ecommerce',
+    // Fetch data using the appropriate parameters (only when shouldFetch is true)
+    const { data: segmentData, isSuccess, isError, error } = useCustomerGroupSellingChannel({
+      ...queryParams,
+      enabled: shouldFetch
     });
 
-    // Store in localStorage when fetched from API or if customerGroupId changed
+    // Store in localStorage when fetched from API
     useEffect(() => {
-      if (isSuccess && segmentData && segmentKey && (shouldFetch || !segmentDetails)) {
+      if (isSuccess && segmentData && segmentKey) {
+        // Save segment details to localStorage
         localStorage.setItem(segmentKey, JSON.stringify(segmentData));
-        if (segmentData.customer_group_id) {
-          localStorage.setItem(customerGroupKey, segmentData.customer_group_id.toString());
-          setCustomerGroupId(segmentData.customer_group_id);
+        
+        // If we have customer_group_id in the response and auth_user exists
+        if (segmentData.customer_group_id && hasAuthUser) {
+          try {
+            const existingAuthUser = localStorage.getItem(authUserKey);
+            if (existingAuthUser) {
+              const updatedAuthUser = JSON.parse(existingAuthUser);
+              updatedAuthUser.customer_group_id = segmentData.customer_group_id;
+              localStorage.setItem(authUserKey, JSON.stringify(updatedAuthUser));
+              setCustomerGroupId(segmentData.customer_group_id);
+              setCustomerGroupIdFromAuth(segmentData.customer_group_id);
+            }
+          } catch (e) {
+            console.error('Error updating customer_group_id in auth_user', e);
+          }
         }
+        
         setSegmentDetails(segmentData);
       }
-    }, [isSuccess, segmentData, segmentKey, segmentDetails, shouldFetch, customerGroupKey]);
-    return null;
-  }
-  
-  // KillSwitch check component
-  function KillSwitchCheck() {
-    const storeConfig = useStoreConfig();
-    const router = useRouter();
-    const pathname = usePathname();
-    
+    }, [isSuccess, segmentData, segmentKey, authUserKey, hasAuthUser]);
+
+    // Log errors for debugging
     useEffect(() => {
-      // Check if kill_switch is true
-      if (storeConfig.feature_toggle_settings.kill_switch) {
-        // Extract tenant slug from URL path
-        const pathParts = pathname.split("/");
-        const currentTenantSlug = pathParts[1];
-        
-        // Only redirect if not already on the maintenance page
-        if (!pathname.includes("site-under-maintenance")) {
-          // Redirect to maintenance page
-          router.push(`/${currentTenantSlug}/site-under-maintenance`);
-        }
+      if (isError && error) {
+        console.error('Error fetching segment data:', error);
       }
-    }, [storeConfig, pathname, router]);
-    
+    }, [isError, error]);
     return null;
   }
 
@@ -344,7 +392,6 @@ export default function StoreLayout({
                       <OrderDetailProvider>
                         <AuthRefreshProvider>
                           <StoreConfigProvider>
-                            <KillSwitchCheck />
                             <Box
                               sx={{
                                 display: "flex",

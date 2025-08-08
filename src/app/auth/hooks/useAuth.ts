@@ -212,7 +212,7 @@ export const useCheckEmail = () => {
       const tenantSchema = getTenantSchema();
 
       const response = await TenantService.post(
-        `${tenantSchema}/auth/check-email/`,
+        `${tenantSchema}/auth/email-check/`,
         { email }
       );
 

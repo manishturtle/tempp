@@ -181,29 +181,6 @@ export const getAllStorePickups = async (
   return response.data.results || [];
 };
 
-/**
- * Hook to fetch all store pickup locations filtered by customer group and selling channel
- * @param customerGroupId - The ID of the customer group
- * @param sellingChannelId - The ID of the selling channel
- */
-export const getAllPaymentMethods = async (
-  customerGroupId?: number | null,
-  sellingChannelId?: number | null
-): Promise<any[]> => {
-  if (!customerGroupId || !sellingChannelId) {
-    return [];
-  }
-
-  const response = await api.get(apiEndpoints.lookupData.paymentMethods(), {
-    params: {
-      customer_group_id: customerGroupId,
-      selling_channel_id: sellingChannelId,
-    },
-    headers: getAuthHeaders(),
-  });
-
-  return response.data || [];
-};
 
 /**
  * Fetch all divisions without pagination
@@ -395,8 +372,7 @@ export const getUnpaidInvoices = async (
   accountId: number
 ): Promise<{
   unpaid_amount: number;
-  unpaid_invoice_count: number;
-  account_id: number;
+  unpaid_invoices: any[];
 }> => {
   if (!accountId) {
     throw new Error("Account ID is required");

@@ -102,10 +102,10 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
   const handleOpenDialog = () => {
     if (products.length === 0) {
       if (showWarning) {
-        showWarning("Please select a valid account and selling channel");
+        showWarning("No products available for this account and selling channel");
       } else if (showNotification) {
         showNotification(
-          "Please select a valid account and selling channel",
+          "No products available for this account and selling channel",
           "warning"
         );
       } else {

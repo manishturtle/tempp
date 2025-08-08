@@ -65,6 +65,8 @@ Chart.register(
   Legend
 );
 
+import { COCKPIT_API_BASE_URL } from '@/utils/constants';
+
 // Define a theme to match the design's font and color palette
 const theme = createTheme({
   palette: {
@@ -174,35 +176,36 @@ const storeAnalytics = [{
   value: '1,245',
   change: '+5% from yesterday',
   changeColor: 'success',
-  icon: < Visibility color = "primary" / > ,
-}, {
+  // icon: < Visibility color = "primary" / > ,
+  }, 
+  {
   title: 'Items in Cart',
   value: '268',
   change: '-2.4% from yesterday',
   changeColor: 'error',
-  icon: < ShoppingCart sx = {
-      {
-          color: '#9c27b0'
-      }
-  }
-  />,
+  // icon: < ShoppingCart sx = {
+  //     {
+  //         color: '#9c27b0'
+  //     }
+  // }
+  // />,
 }, {
   title: 'Active Sessions',
   value: '156',
   change: '- from yesterday',
   changeColor: 'inherit',
-  icon: < Person color = "success" / > ,
+  // icon: < Person color = "success" / > ,
 }, {
   title: 'Total Sessions',
   value: '2,456',
   change: '+10% from yesterday',
   changeColor: 'success',
-  icon: < BarChart sx = {
-      {
-          color: '#ffc107'
-      }
-  }
-  />,
+  // icon: < BarChart sx = {
+  //     {
+  //         color: '#ffc107'
+  //     }
+  // }
+  // />,
 }, ];
 
 const conversionFunnel = [{
@@ -425,6 +428,7 @@ export default function TenantPage(): React.ReactElement {
   const authChecked = useRef(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [sessionData, setSessionData] = useState<any>(null);
 const [accountFilter, setAccountFilter] = React.useState('weekly');
     const [salesFilter, setSalesFilter] = React.useState('last7');
 
@@ -436,26 +440,89 @@ const [accountFilter, setAccountFilter] = React.useState('weekly');
         setSalesFilter(event.target.value as string);
     };
   /**
+   * Fetches session data from the session API endpoint
+   */
+  /**
+   * Fetches session data from the session API endpoint with optimized handling
+   * Uses a combination of sessionStorage and URL cleanup to prevent infinite loops
+   */
+  const fetchSessionData = async (tenant_slug: string, sessionId: string): Promise<any> => {
+    // Use sessionStorage instead of localStorage for session-specific data
+    // This is more appropriate as it's cleared when the session ends
+    const processedSessions = JSON.parse(sessionStorage.getItem('processed_sessions') || '{}');
+    
+    // If we've already processed this session, don't make the API call again
+    if (processedSessions[sessionId]) {
+      console.log('Session already processed, skipping API call');
+      return null;
+    }
+    
+    try {
+      // Use a cancelable token for better control over the request
+      const source = axios.CancelToken.source();
+      
+      // Set a timeout to cancel the request after 5 seconds
+      const timeoutId = setTimeout(() => {
+        source.cancel('Request timeout after 5 seconds');
+      }, 5000);
+      
+      const response = await axios.get(
+        `${COCKPIT_API_BASE_URL}/${tenant_slug}/auth/session/?session_id=${sessionId}`,
+        { cancelToken: source.token }
+      );
+      
+      // Clear the timeout since the request completed
+      clearTimeout(timeoutId);
+      
+      // Mark this session as processed
+      processedSessions[sessionId] = true;
+      // Only update session storage if we're not in the process of logging out
+      if (localStorage.getItem('is_logging_out') !== 'true') {
+        // Mark this session as processed
+        processedSessions[sessionId] = true;
+        sessionStorage.setItem('processed_sessions', JSON.stringify(processedSessions));
+      }
+      
+      return response.data;
+    } catch (error) {
+      // Only update session storage if we're not in the process of logging out
+      if (localStorage.getItem('is_logging_out') !== 'true') {
+        // Mark as processed on error to prevent retries
+        processedSessions[sessionId] = true;
+        sessionStorage.setItem('processed_sessions', JSON.stringify(processedSessions));
+      }
+      
+      if (axios.isCancel(error)) {
+        console.warn('Request was cancelled:', error.message);
+      } else {
+        console.error('Error fetching session data:', error);
+      }
+      
+      throw error;
+    }
+  };
+
+  /**
    * Handles authentication flow including token extraction, tenant verification, and redirects
    */
-  const handleAuth = async (): Promise<void> => {
+  const handleAuth = async (tenant_slug: string): Promise<void> => {
     try {
-      const currentUrl = window.location.href;
-      const urlParams = new URLSearchParams(window.location.search);
-      const token = urlParams.get('token');
-      const tenant_slug = urlParams.get('tenant_slug') || tenant;
-      const hasCheckedTenant = localStorage.getItem(`${tenant_slug}_admin_has_checked`);
-      const app_id = urlParams.get('app_id');
+    const currentUrl = window.location.href;
+    const token = localStorage.getItem(`${tenant_slug}_admin_token`);
+    const hasCheckedTenant = localStorage.getItem(`${tenant_slug}_admin_has_checked_tenant`);
+    const app_id = "1";
 
-      // If we have a token in URL, we just logged in - store it and skip tenant check
-      if (token) {
-        localStorage.setItem(`${tenant_slug}_admin_token`, token);
+    console.log("tenant_slug", tenant_slug);
+     
+      // If we have a token, proceed with tenant configuration
+      if (token && tenant_slug) {
+        // Make sure we have tenant_slug stored
         localStorage.setItem(`${tenant_slug}_admin_tenant_slug`, tenant_slug as string);
         localStorage.setItem(`${tenant_slug}_admin_app_id`, app_id || '');
         
         // Call tenant configuration API
         try {
-          const configResponse = await fetch(`http://localhost:8000/api/${tenant_slug}/tenant-admin/tenant-login-config/`, {
+          const configResponse = await fetch(`${COCKPIT_API_BASE_URL}/${tenant_slug}/tenant-admin/tenant-login-config/`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -466,8 +533,19 @@ const [accountFilter, setAccountFilter] = React.useState('weekly');
             const configData = await configResponse.json();
             console.log('Tenant config data:', configData);
             
+            // Check if config data is empty (all empty objects)
+            const isEmptyConfig = configData && 
+              Object.keys(configData.branding_config || {}).length === 0 &&
+              Object.keys(configData.company_info || {}).length === 0 &&
+              Object.keys(configData.localization_config || {}).length === 0;
+              
+            // If config is empty, we should still check tenant existence
+            if (isEmptyConfig) {
+              console.log('Empty tenant config received, proceeding with tenant existence check...');
+              // We'll let the function continue to the tenant existence check below
+            } 
             // Extract and store specific configuration values individually
-            if (configData) {
+            else if (configData) {
               // Store localization settings with tenant_slug_admin_ prefix
               const localization = configData.localization_config || {};
               localStorage.setItem(`${tenant_slug}_admin_appLanguage`, localization.default_language || 'en');
@@ -508,7 +586,7 @@ const [accountFilter, setAccountFilter] = React.useState('weekly');
             
             // Store tenant specific information with tenant_slug_admin_ prefix in localStorage
             localStorage.setItem(`${tenant_slug}_admin_tenant_slug`, tenant_slug as string);
-            localStorage.setItem(`${tenant_slug}_admin_app_id`, app_id || '5');
+            localStorage.setItem(`${tenant_slug}_admin_app_id`, app_id || '');
             
             // Check onboarding status
             console.log('About to check onboarding status...');
@@ -529,8 +607,12 @@ const [accountFilter, setAccountFilter] = React.useState('weekly');
                 const onboardingData = await onboardingResponse.json();
                 console.log('Onboarding status data:', onboardingData);
                 
+                // Store onboarding status in localStorage to prevent repeated checks
+                const isOnboardingCompleted = onboardingData?.is_onboarding_completed === true;
+                localStorage.setItem(`${tenant_slug}_admin_onboarding_completed`, String(isOnboardingCompleted));
+                
                 // If onboarding is not completed, redirect to onboarding page
-                if (onboardingData && onboardingData.is_onboarding_completed === false) {
+                if (onboardingData && !isOnboardingCompleted) {
                   console.log('Onboarding not completed. Redirecting to onboarding page...');
                   window.location.href = `/${tenant_slug}/onboarding`;
                   return; // Stop execution since we're redirecting
@@ -557,23 +639,39 @@ const [accountFilter, setAccountFilter] = React.useState('weekly');
         return;
       }
 
-      // Only skip tenant check if we have both a token and have checked tenant before
+      // Skip tenant check if we have both a token and have checked tenant before
       const storedToken = localStorage.getItem(`${tenant_slug}_admin_token`);
       const storedTenantSlug = localStorage.getItem(`${tenant_slug}_admin_tenant_slug`);
+      const hasProcessedTenantCheck = sessionStorage.getItem(`${tenant_slug}_processed_tenant_check`);
+      
+      // If we already have both a token and have marked the tenant as checked, we can skip the tenant check
       if (storedToken && hasCheckedTenant && storedTenantSlug) {
+        console.log("Already authenticated and tenant verified, skipping checks");
         setIsLoading(false);
         return;
       }
-
-      // Mark that we've checked tenant in localStorage
+      
+      // Mark that we've checked tenant in localStorage to prevent future checks
       localStorage.setItem(`${tenant_slug}_admin_has_checked_tenant`, 'true');
-
-      console.log("Checking tenant...", currentUrl);
-
-
-      // Only check tenant if we have no token
+      
+      // If we already have a token or have processed the tenant check in this session, we can skip the tenant check API call
+      if (storedToken || hasProcessedTenantCheck) {
+        console.log("Token exists or tenant check already processed, skipping tenant check API");
+        setIsLoading(false);
+        return;
+      }
+      
+      // Only update session storage if we're not in the process of logging out
+      if (localStorage.getItem('is_logging_out') !== 'true') {
+        // Mark that we're processing the tenant check in this session
+        sessionStorage.setItem(`${tenant_slug}_processed_tenant_check`, 'true');
+      }
+      
+      console.log("No token found, checking tenant...", currentUrl);
+      
+      // Only perform tenant check API call if we have no token
       const checkTenantResponse = await axios.post(
-        "http://localhost:8000/api/platform-admin/subscription/check-tenant-exist/",
+        `${COCKPIT_API_BASE_URL}/platform-admin/subscription/check-tenant-exist/`,
         {
           application_url: currentUrl,
         }
@@ -609,32 +707,93 @@ const [accountFilter, setAccountFilter] = React.useState('weekly');
   useEffect(() => {
     if (typeof window === 'undefined' || authChecked.current) return;
     
-    const checkAuth = async () => {
+    const checkTenantAndAuth = async () => {
       authChecked.current = true;
-      const storedToken = localStorage.getItem(`${tenant}_admin_token`);
       const urlParams = new URLSearchParams(window.location.search);
+      const sessionId = urlParams.get('session_id');
       
+      // Clean up URL immediately if session_id is present to prevent page refresh issues
+      if (sessionId && window.history.replaceState) {
+        const currentUrl = new URL(window.location.href);
+        urlParams.delete('session_id');
+        currentUrl.search = urlParams.toString();
+        window.history.replaceState({}, document.title, currentUrl.toString());
+      }
+
       try {
-        // Only call handleAuth if we don't have a token or if we have URL params
-        if (!storedToken || urlParams.has('token') || urlParams.has('app_id')) {
-          await handleAuth();
+        // First check if tenant exists
+        const tenantCheckResponse = await fetch(`${COCKPIT_API_BASE_URL}/${tenant}/tenant-admin/tenant-login-config/`);
+        if (!tenantCheckResponse.ok) {
+          throw new Error('Tenant not found or inaccessible');
+        }
+        
+        const tenantConfig = await tenantCheckResponse.json();
+        // Only validate tenant_id if the config is not empty
+        const isEmptyConfig = tenantConfig && 
+          Object.keys(tenantConfig.branding_config || {}).length === 0 &&
+          Object.keys(tenantConfig.company_info || {}).length === 0 &&
+          Object.keys(tenantConfig.localization_config || {}).length === 0;
+          
+        if (!tenantConfig || (!isEmptyConfig && !tenantConfig.tenant_id)) {
+          console.warn('Invalid or empty tenant configuration, but proceeding with tenant check');
+          // Don't throw an error, let the handleAuth function handle the tenant check
+        }
+        
+        // Store tenant config for later use if needed
+        localStorage.setItem(`${tenant}_config`, JSON.stringify(tenantConfig));
+        
+        // Now proceed with authentication
+        const storedToken = localStorage.getItem(`${tenant}_admin_token`);
+        
+        // Check if this is a fresh login by looking for sessionId
+        const isLogin = sessionId;
+        const hasCompletedOnboarding = localStorage.getItem(`${tenant}_admin_onboarding_completed`);
+        
+        // First try to fetch session data if session ID is present
+        if (sessionId) {
+          try {
+            const sessionData = await fetchSessionData(tenant, sessionId);
+            
+            // Only process valid session data
+            if (sessionData?.access_token) {
+              setSessionData(sessionData);
+              localStorage.setItem(`${tenant}_admin_token`, sessionData.access_token);
+              localStorage.setItem(`${tenant}_admin_tenant_slug`, tenant);
+              
+              // After setting the token from session, call handleAuth to process tenant admin data
+              await handleAuth(tenant);
+              return;
+            }
+          } catch (sessionError) {
+            console.error('Error fetching session data:', sessionError);
+            // Continue with normal auth flow if session fetch fails
+          }
+        }
+        
+        // Call handleAuth in these cases:
+        // 1. When we don't have a token (first login)
+        // 2. When there's a URL parameter indicating login/token
+        // 3. When we haven't checked onboarding status yet
+        if (!storedToken || isLogin || !hasCompletedOnboarding) {
+          await handleAuth(tenant);
         } else {
-          // If we have a token and no URL params, we're already authenticated
+          // If we have a token and no login indicators, we're already authenticated
           setIsLoading(false);
         }
       } catch (error) {
-        console.error('Error during authentication:', error);
+        console.error('Error during tenant check or authentication:', error);
+        setError('Failed to verify tenant or authenticate. Please check the URL and try again.');
         setIsLoading(false);
       }
     };
 
-    checkAuth();
+    checkTenantAndAuth();
 
     // Cleanup function to reset the flag if component unmounts
     return () => {
       authChecked.current = false;
     };
-  }, [handleAuth, tenant]);
+  }, [tenant]);
 
   useEffect(() => {
     // Clean up any reload count when component unmounts

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Typography,
@@ -34,7 +34,6 @@ interface BillingAddressSelectorProps {
   isAuthenticated?: boolean;
   onFormVisibilityChange?: (isVisible: boolean) => void;
   selectedFulfillmentMethod?: string;
-  onEditModeChange?: (isEditing: boolean) => void;
 }
 
 /**
@@ -47,7 +46,6 @@ export const BillingAddressSelector: React.FC<BillingAddressSelectorProps> = ({
   isAuthenticated = true,
   onFormVisibilityChange,
   selectedFulfillmentMethod,
-  onEditModeChange,
 }) => {
   // If useSameAsShipping is true, we use the shipping address
   const [useSameAsShipping, setUseSameAsShipping] = useState<boolean>(false);
@@ -68,36 +66,6 @@ export const BillingAddressSelector: React.FC<BillingAddressSelectorProps> = ({
     refetch: refreshAddresses,
   } = useGetAddresses();
   const theme = useTheme();
-
-  // Edit handlers
-  const handleEditAddress = (address: Address) => {
-    setEditingAddress(address);
-    setIsEditMode(true);
-    onEditModeChange?.(true); // Notify parent about edit mode
-  };
-
-  // Convert Address to ShippingAddressFormData for prefilling
-  const getFormDataFromAddress = (
-    address: Address
-  ): Partial<ShippingAddressFormData> => {
-    console.log("Converting billing address to form data:", address);
-
-    const formData = {
-      full_name: address.full_name || address.fullName || "",
-      address_line1: address.address_line1 || address.addressLine1 || "",
-      address_line2: address.address_line2 || address.addressLine2 || "",
-      city: address.city || "",
-      state: address.state || "",
-      postal_code: address.postal_code || address.postalCode || "",
-      country: address.country || "",
-      business_name: address.business_name || "",
-      gst_number: address.gst_number || "",
-      type: "business", // Default for billing addresses
-    };
-
-    console.log("Converted billing form data:", formData);
-    return formData;
-  };
 
   // Filter addresses by address_type = BILLING
   // We now keep the address_type field from the API
@@ -176,6 +144,38 @@ export const BillingAddressSelector: React.FC<BillingAddressSelectorProps> = ({
     shippingAddress,
   ]);
 
+
+
+  // Edit handlers
+  const handleEditAddress = (address: Address) => {
+    setEditingAddress(address);
+    console.log("🔥 BillingAddressSelector - handleEditAddress called with:", address);
+    setIsEditMode(true);
+  };
+
+  // Convert Address to ShippingAddressFormData for prefilling
+  const getFormDataFromAddress = (
+    address: Address
+  ): Partial<ShippingAddressFormData> => {
+    console.log("🔥 BillingAddressSelector - getFormDataFromAddress called with:", address);
+    
+    const formData = {
+      full_name: address.full_name || address.fullName || "",
+      address_line1: address.address_line1 || address.addressLine1 || "",
+      address_line2: address.address_line2 || address.addressLine2 || "",
+      city: address.city || "",
+      state: address.state || "",
+      postal_code: address.postal_code || address.postalCode || "",
+      country: address.country || "",
+      type: "business",
+      business_name: address.business_name || "",
+      gst_number: address.gst_number || "",
+    };
+
+    console.log("🔥 BillingAddressSelector - returning form data:", formData);
+    return formData;
+  };
+
   if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" py={2}>
@@ -197,25 +197,32 @@ export const BillingAddressSelector: React.FC<BillingAddressSelectorProps> = ({
   // Render billing addresses with option to use same as shipping
   return (
     <Box>
-      {/* Show edit form if in edit mode */}
-      {isEditMode && editingAddress ? (
+      {isEditMode && editingAddress && (
         <Box sx={{ mt: 2 }}>
           <ShippingAddressForm
+            key={`billing-edit-${editingAddress.id}`}
             defaultValues={getFormDataFromAddress(editingAddress)}
             formId="billing-address-form"
             selectedAddressId={editingAddress?.id}
             onCancel={() => {
               setIsEditMode(false);
-              onEditModeChange?.(false); // Notify parent edit mode ended
+              setEditingAddress(null);
+              if (onFormVisibilityChange) {
+                onFormVisibilityChange(false);
+              }
             }}
             onSuccess={() => {
-              // Refresh the addresses list after successful update
+              setIsEditMode(false);
+              setEditingAddress(null);
               refreshAddresses();
-              onEditModeChange?.(false); // Notify parent edit mode ended
+              if (onFormVisibilityChange) {
+                onFormVisibilityChange(false);
+              }
             }}
           />
         </Box>
-      ) : (
+      )}
+      {!isEditMode && (
         <>
           {shippingAddress &&
             selectedFulfillmentMethod !== "in_store_pickup" && (
@@ -252,6 +259,7 @@ export const BillingAddressSelector: React.FC<BillingAddressSelectorProps> = ({
                 />
               </Box>
             )}
+
           {/* Always show billing addresses */}
           <Box sx={{ width: "100%" }}>
             <Box
@@ -396,7 +404,10 @@ export const BillingAddressSelector: React.FC<BillingAddressSelectorProps> = ({
                         <Box>
                           <IconButton
                             size="small"
-                            onClick={() => handleEditAddress(address)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditAddress(address);
+                            }}
                           >
                             <EditIcon fontSize="small" />
                           </IconButton>
@@ -474,10 +485,10 @@ export const BillingAddressSelector: React.FC<BillingAddressSelectorProps> = ({
               )}
             </Box>
           </Box>
+
+          {/* Continue button removed - now handled in Layout1 */}
         </>
       )}
-
-      {/* Continue button removed - now handled in Layout1 */}
     </Box>
   );
 };

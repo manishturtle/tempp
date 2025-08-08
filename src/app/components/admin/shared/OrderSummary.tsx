@@ -49,7 +49,7 @@ interface OrderSummaryProps {
   mode: OrderMode;
   orderData: any;
   setOrderData: React.Dispatch<React.SetStateAction<any>>;
-  roundingMethod: string;
+  roundingMethod?: string;
 }
 
 interface TaxSummary {
@@ -66,11 +66,12 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   mode,
   orderData,
   setOrderData,
-  roundingMethod,
+  roundingMethod = "",
 }) => {
   const { t } = useTranslation();
   const [showTaxBreakdown, setShowTaxBreakdown] = useState(false);
   const [showDiscountConfig, setShowDiscountConfig] = useState(false);
+  const isReadOnly = mode?.toLowerCase() === OrderMode.VIEW;
 
   // Extract data from orderData
   const lineItems = (orderData.items || []) as ProductLineItem[];
@@ -264,7 +265,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
       // Return to 2 decimal places
       return parseFloat(amount.toFixed(2));
     }
-    
+
     let roundedAmount: number;
     switch (roundingMethod) {
       case "ROUND_UP":
@@ -281,7 +282,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         roundedAmount = amount;
         break;
     }
-    
+
     // Ensure all values are returned with 2 decimal places
     return parseFloat(roundedAmount.toFixed(2));
   };
@@ -299,20 +300,39 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   const subtotal = calculateSubtotal();
   const { amount: orderDiscountAmount } = calculateOrderDiscount();
   const { taxes, totalTax } = calculateTaxSummary();
-  
+
   // Calculate raw total and rounded total
   const rawTotal = subtotal - orderDiscountAmount + totalTax;
   const grandTotal = applyRounding(rawTotal);
   const roundingDelta = parseFloat((grandTotal - rawTotal).toFixed(2));
-  
+
   // Update orderData with calculated values
   useEffect(() => {
+    let sign = "";
+
+    if (roundingMethod) {
+      switch (roundingMethod) {
+        case "ROUND_UP":
+          sign = "+";
+          break;
+        case "ROUND_DOWN":
+          sign = "-";
+          break;
+        case "NORMAL":
+          sign = "~";
+          break;
+        default:
+          sign = "";
+          break;
+      }
+    }
     setOrderData((prev: any) => ({
       ...prev,
       subtotal_amount: subtotal,
       tax_amount: totalTax,
       total_amount: grandTotal,
       rounded_delta: roundingDelta,
+      rounding_sign: sign,
     }));
   }, [subtotal, totalTax, grandTotal, roundingDelta, setOrderData]);
 
@@ -373,19 +393,20 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         <Divider sx={{ my: 1 }} />
 
         {/* Order-level discount with toggle button */}
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-        >
+        <Box display="flex" justifyContent="space-between" alignItems="center">
           <Box display="flex" alignItems="center">
             <Typography variant="body2">{t("orders.discount")}</Typography>
             <IconButton
               size="small"
               onClick={() => setShowDiscountConfig(!showDiscountConfig)}
               sx={{ ml: 0.5 }}
+              disabled={isReadOnly}
             >
-              {showDiscountConfig ? <RemoveIcon fontSize="small" /> : <AddIcon fontSize="small" />}
+              {showDiscountConfig ? (
+                <RemoveIcon fontSize="small" />
+              ) : (
+                <AddIcon fontSize="small" />
+              )}
             </IconButton>
           </Box>
           <Typography variant="body2">
@@ -434,6 +455,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                     },
                   },
                 }}
+                disabled={isReadOnly}
               />
             </Grid>
             <Grid size={6}>
@@ -455,6 +477,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                       : "outlined"
                   }
                   startIcon={<PercentIcon />}
+                  disabled={isReadOnly}
                 />
                 <Button
                   onClick={() => {
@@ -466,6 +489,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                     localDiscountType === "AMOUNT" ? "contained" : "outlined"
                   }
                   startIcon={<CurrencyRupeeIcon />}
+                  disabled={isReadOnly}
                 />
               </ButtonGroup>
             </Grid>
@@ -475,11 +499,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         <Divider sx={{ my: 1 }} />
 
         {/* Tax breakdown */}
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-        >
+        <Box display="flex" justifyContent="space-between" alignItems="center">
           <Box display="flex" alignItems="center">
             <Typography variant="body2">{t("orders.taxBreakdown")}</Typography>
             {taxes.length > 0 && (
@@ -488,7 +508,11 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                 onClick={() => setShowTaxBreakdown(!showTaxBreakdown)}
                 sx={{ ml: 0.5 }}
               >
-                {showTaxBreakdown ? <RemoveIcon fontSize="small" /> : <AddIcon fontSize="small" />}
+                {showTaxBreakdown ? (
+                  <RemoveIcon fontSize="small" />
+                ) : (
+                  <AddIcon fontSize="small" />
+                )}
               </IconButton>
             )}
           </Box>
@@ -523,7 +547,9 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         {roundingDelta !== 0 && (
           <SummaryRow
             label={t("orders.roundingAdjustment", "Rounding Adjustment")}
-            value={`₹ ${roundingDelta >= 0 ? '+' : ''}${roundingDelta.toFixed(2)}`}
+            value={`₹ ${roundingDelta >= 0 ? "+" : ""}${roundingDelta.toFixed(
+              2
+            )}`}
             color={roundingDelta >= 0 ? "success.main" : "error.main"}
           />
         )}
@@ -531,8 +557,11 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         {/* Grand Total */}
         <SummaryRow
           label={t("orders.grandTotal")}
-          value={`₹ ${roundingMethod && roundingMethod !== "NONE" && roundingMethod !== "" ? 
-            grandTotal.toFixed(2) : grandTotal.toFixed(2)}`}
+          value={`₹ ${
+            roundingMethod && roundingMethod !== "NONE" && roundingMethod !== ""
+              ? grandTotal.toFixed(2)
+              : grandTotal.toFixed(2)
+          }`}
           isTotal={true}
           color="primary.main"
         />

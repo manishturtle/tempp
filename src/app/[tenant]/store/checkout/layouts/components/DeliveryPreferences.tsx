@@ -11,7 +11,6 @@ import {
   Chip,
   Stack,
   CircularProgress,
-  Autocomplete,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -59,7 +58,7 @@ export const DeliveryPreferences: React.FC<DeliveryPreferencesProps> = ({
   onChange,
 }) => {
   const { t } = useTranslation();
-  const theme = useTheme();
+const theme = useTheme();
   // Create a handler for updating any field
   const handleTimeSlotToggle = (slot: TimeSlot): void => {
     const currentSlots = preferences.preferredTimeSlots || [];
@@ -80,137 +79,141 @@ export const DeliveryPreferences: React.FC<DeliveryPreferencesProps> = ({
     });
   };
 
+
   // Fetch time slots from API
-  const {
-    data: timeSlots,
-    isLoading: isLoadingTimeSlots,
-    error: timeSlotsError,
-  } = useTimeSlots();
+  const { data: timeSlots, isLoading: isLoadingTimeSlots, error: timeSlotsError } = useTimeSlots();
 
   return (
     <>
-      <Grid container spacing={2} sx={{ mt: 0.5 }}>
+      
+      <Grid container spacing={2} sx={{mt: 0.5}}>
         {/* Date and Time Column */}
-        {enable_preferred_date && (
-          <Grid size={{xs:12, md:3}}>
+        <Grid size={{xs:12, md:6}}>
+          <Stack>
             {/* Date Picker */}
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <DatePicker
-                value={preferences.preferredDate}
-                onChange={(date) => handleChange("preferredDate", date)}
-                slotProps={{
-                  textField: {
-                    label: t(
-                      "common:store.checkout.preferredDeliveryDate",
-                      "Preferred Date"
-                    ),
-                    fullWidth: true,
-                    size: "small",
-                    placeholder: "dd-mm-yyyy",
-                  },
-                }}
-                disablePast
-              />
-            </LocalizationProvider>
-          </Grid>
-        )}
-        {/* Time Slots as Chips */}
-        {enable_time_slots && (
-          <Grid size={{xs:12, md:4.5}}>
-           
-              {isLoadingTimeSlots ? (
-                <Box display="flex" justifyContent="center" my={2}>
-                  <CircularProgress size={24} />
-                </Box>
-              ) : timeSlotsError ? (
-                <Typography color="error" variant="body2">
-                  {t(
-                    "common:store.checkout.errorLoadingTimeSlots",
-                    "Error loading time slots"
-                  )}
-                </Typography>
-              ) : (
-                <Autocomplete
-                  multiple
-                  id="time-slots-autocomplete"
-                  options={timeSlots || []}
-                  value={preferences.preferredTimeSlots || []}
-                  getOptionLabel={(option) => `${option.start_time.substring(0, 5)} - ${option.end_time.substring(0, 5)}`}
-                  isOptionEqualToValue={(option, value) => option.id === value.id}
-                  onChange={(_, newValue) => {
-                    handleChange("preferredTimeSlots", newValue);
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      variant="outlined"
-                      label={t("common:store.checkout.selectTimeSlots", "Select Time Slots")}
-                      placeholder={t("common:store.checkout.selectTimeSlotsPlaceholder", "Choose preferred times")}
-                      size="small"
-                      fullWidth
-                    />
-                  )}
-                  renderTags={(value, getTagProps) =>
-                    value.map((option, index) => (
-                      <Chip
-                        {...getTagProps({ index })}
-                        key={option.id}
-                        label={`${option.start_time.substring(0, 5)} - ${option.end_time.substring(0, 5)}`}
-                        color="primary"
-                        size="small"
-                        sx={{
-                          bgcolor: theme.palette.primary.main,
-                          color: theme.palette.primary.contrastText,
-                          '&:hover': {
-                            bgcolor: theme.palette.primary.dark,
-                          },
-                        }}
-                      />
-                    ))
-                  }
-                  noOptionsText={
-                    <Typography variant="body2" color="textSecondary">
-                      {t("common:store.checkout.noTimeSlotsAvailable", "No time slots available")}
-                    </Typography>
-                  }
-                  sx={{
-                    width: '100%',
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: '#ccc',
+            {enable_preferred_date && (
+              <Box>
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <DatePicker
+                    value={preferences.preferredDate}
+                    onChange={(date) => handleChange("preferredDate", date)}
+                    slotProps={{
+                      textField: {
+                        label: t(
+                          "common:store.checkout.preferredDeliveryDate",
+                          "Preferred Delivery Date"
+                        ),
+                        fullWidth: true,
+                        size: "small",
+                        placeholder: "dd-mm-yyyy",
                       },
-                      '&:hover fieldset': {
-                        borderColor: theme.palette.primary.main,
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: theme.palette.primary.main,
-                      },
-                    },
-                  }}
-                />                
-              )}
+                    }}
+                    disablePast
+                  />
+                </LocalizationProvider>
+              </Box>
+            )}
             
-          </Grid>
-        )}
+            {/* Time Slots as Chips */}
+            {enable_time_slots && (
+              <Box>
+                <Typography variant="subtitle2" gutterBottom>
+                  {t("common:store.checkout.availableTimeSlots", "Available Time Slots")}
+                </Typography>
+                
+                {isLoadingTimeSlots ? (
+                  <Box display="flex" justifyContent="center" my={2}>
+                    <CircularProgress size={24} />
+                  </Box>
+                ) : timeSlotsError ? (
+                  <Typography color="error" variant="body2">
+                    {t("common:store.checkout.errorLoadingTimeSlots", "Error loading time slots")}
+                  </Typography>
+                ) : (
+                  <Paper 
+                    elevation={0}
+                    sx={{
+                      p: 2,
+                      borderRadius: 1,
+                      border: 1,
+                      borderColor: "#ccc",
+                    }}
+                  >
+                    <Box sx={{ 
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+                      gap: 1,
+                      width: '100%',
+                      '& > *': {
+                        width: '100%',
+                        '& .MuiChip-root': {
+                          width: '100%',
+                          justifyContent: 'center'
+                        }
+                      }
+                    }}>
+                      {timeSlots?.map((slot: TimeSlot) => {
+                        const isSelected = (preferences.preferredTimeSlots || []).some((s) => s.id === slot.id);
+                        return (
+                          <Chip
+                            key={slot.id}
+                            label={`${slot.start_time.substring(0, 5)} - ${slot.end_time.substring(0, 5)}`}
+                            variant={isSelected ? "filled" : "outlined"}
+                            color={isSelected ? "primary" : "default"}
+                            onClick={() => handleTimeSlotToggle(slot)}
+                            sx={{
+                              borderColor: theme.palette.primary.main,
+                              '&.MuiChip-filled': {
+                                bgcolor: theme.palette.primary.main,
+                                color: theme.palette.primary.contrastText,
+                                '&:hover': {
+                                  bgcolor: theme.palette.primary.dark,
+                                },
+                              },
+                              '&.MuiChip-outlined:hover': {
+                                bgcolor: 'transparent',
+                                borderColor: theme.palette.primary.dark,
+                                color: theme.palette.primary.dark,
+                              },
+                            }}
+                          />
+                        );
+                      })}
+                      {(!timeSlots || timeSlots.length === 0) && (
+                        <Typography variant="body2" color="textSecondary">
+                          {t("common:store.checkout.noTimeSlotsAvailable", "No time slots available")}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Paper>
+                )}
+              </Box>
+            )}
+          </Stack>
+        </Grid>
 
         {/* Instructions Column */}
-        <Grid size={{xs:12, md:4.5}}>
-        <TextField
-            label={t(
-              "common:store.checkout.deliveryInstructions",
-              "Instructions"
-            )}
-            fullWidth
-            size="small"
-            value={preferences.deliveryInstructions}
-            onChange={(e) =>
-              handleChange("deliveryInstructions", e.target.value)
-            }
-            placeholder={t(
-              "common:store.checkout.specialInstructionsPlaceholder",
-              "Special delivery instructions, preferred location, etc."
-            )}
-          />
+        <Grid size={{xs:12, md:6}}>
+          <Box>
+            <TextField
+              multiline
+              label={t(
+                "common:store.checkout.deliveryInstructions",
+                "Delivery Instructions"
+              )}
+              rows={4}
+              fullWidth
+              size="small"
+              value={preferences.deliveryInstructions}
+              onChange={(e) =>
+                handleChange("deliveryInstructions", e.target.value)
+              }
+              placeholder={t(
+                "common:store.checkout.specialInstructionsPlaceholder",
+                "Special delivery instructions, preferred location, etc."
+              )}
+            />
+          </Box>
         </Grid>
       </Grid>
     </>

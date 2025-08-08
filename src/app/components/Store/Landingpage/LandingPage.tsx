@@ -98,7 +98,6 @@ export const LandingPage: FC<LandingPageProps> = ({ pageId }) => {
           spaceBetween={0}
           slidesPerView={1}
           loop={true}
-          effect="fade"
           autoplay={{
             delay: content.autoplaySpeed || 5000,
             disableOnInteraction: false,
@@ -112,8 +111,6 @@ export const LandingPage: FC<LandingPageProps> = ({ pageId }) => {
               <Box
                 sx={{
                   position: "relative",
-                  // height: { xs: "30vh", md: "50vh" },
-                  backgroundColor: slide.background_color || "#ffffff",
                 }}
               >
                 {/* Desktop Image (hidden on mobile) */}
@@ -156,14 +153,7 @@ export const LandingPage: FC<LandingPageProps> = ({ pageId }) => {
                     justifyContent: "center",
                     textAlign: "center",
                     padding: 4,
-                    backgroundColor: "rgba(0,0,0,0.4)",
                     cursor: slide.button_link ? "pointer" : "default",
-                    "&:hover": {
-                      backgroundColor: slide.button_link
-                        ? "rgba(0,0,0,0.5)"
-                        : "rgba(0,0,0,0.4)",
-                    },
-                    transition: "background-color 0.3s ease",
                   }}
                 >
                   <Box

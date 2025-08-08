@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { CheckoutConfigsCardList } from "@/app/components/admin/configuration/CheckoutConfigsCardList";
 import { UITemplateSettingsCardList } from "@/app/components/admin/configuration/UITemplateSettingsCardList";
 import { FeatureToggleSettingsCardList } from "@/app/components/admin/configuration/FeatureToggleSettingsCardList";
+import GuestConfig from "@/app/components/admin/configuration/GuestConfig";
 
 /**
  * TabPanel component to display content for the active tab
@@ -64,6 +65,7 @@ export default function ConfigurationPage(): React.ReactElement {
             />
             <Tab label={t("configuration.tabs.uiTemplates", "UI Templates")} />
             <Tab label={t("configuration.tabs.checkout", "Checkout")} />
+            <Tab label={t("configuration.tabs.guest", "Guest")} />
           </Tabs>
         </Box>
       </Paper>
@@ -77,6 +79,9 @@ export default function ConfigurationPage(): React.ReactElement {
       </TabPanel>
       <TabPanel value={activeTab} index={2}>
         <CheckoutConfigsCardList />
+      </TabPanel>
+      <TabPanel value={activeTab} index={3}>
+        <GuestConfig />
       </TabPanel>
     </>
   );

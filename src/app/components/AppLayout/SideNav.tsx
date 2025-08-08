@@ -44,7 +44,15 @@ import {
   InventoryOutlined,
   ListAltOutlined,
   StraightenOutlined,
+  CampaignOutlined,
+  AnalyticsOutlined,
+  VerifiedUserOutlined,
   Label,
+  HelpOutline,
+  Search,
+  ConfirmationNumber,
+  Settings,
+  People,
   Style,
   AttachMoneyOutlined,
   StyleOutlined,
@@ -62,13 +70,14 @@ import {
   AccountTree as AccountTreeIcon,
   Android as AndroidIcon,
   Article as ArticleIcon,
+  Payments as PaymentsIcon,
 } from "@mui/icons-material";
 import { useRouter, usePathname, useParams } from "next/navigation";
 import Link from "next/link";
 import { useLanguage } from "@/app/i18n/LanguageContext";
 import { getTranslation } from "@/app/i18n/languageUtils";
 
-const DRAWER_WIDTH = 240;
+const DRAWER_WIDTH = 260;
 
 interface NavItem {
   title: string;
@@ -96,7 +105,8 @@ export default function SideNav({
   const router = useRouter();
   const pathname = usePathname();
   const params = useParams();
-  const tenant = params?.tenant as string;
+  // Ensure tenant is always a valid string and never undefined
+  const tenant = (params?.tenant as string) || '';
   const [crmOpen, setCrmOpen] = useState(true);
   const [mastersOpen, setMastersOpen] = useState(false);
   const [customerOpen, setCustomerOpen] = useState(false);
@@ -111,9 +121,191 @@ export default function SideNav({
   const { currentLanguage } = useLanguage();
   const [opportunitiesOpen, setOpportunitiesOpen] = useState(false);
   const [paymentMethodsOpen, setPaymentMethodsOpen] = useState(false);
+  const [tenantAdminOpen, setTenantAdminOpen] = useState(false);
+  const [serviceManagementOpen, setServiceManagementOpen] = useState(false);
+  const [engagementOpen, setEngagementOpen] = useState(false);
+  const [aiPlatformOpen, setAiPlatformOpen] = useState(false);
 
   // Function to translate text
   const t = (key: string) => getTranslation(key, currentLanguage);
+
+
+   const AI_Platform: NavItem[] = [
+    {
+      title: t("sidenav.items.webhooks"),
+      path: `/${tenant}/Crm/ai-platform/webhook`,
+      icon: <Dashboard />,
+      translationKey: "webhooks",
+    },
+    {
+      title: t("sidenav.items.workbench"),
+      path: `/${tenant}/Crm/ai-platform/prompt-template/create`,
+      icon: <Dashboard />,
+      translationKey: "workbench",
+    },
+    {
+      title: t("sidenav.items.promptTemplate"),
+      path: `/${tenant}/Crm/ai-platform/prompt-template/list`,
+      icon: <Dashboard />,
+      translationKey: "promptTemplate",
+    },
+    {
+      title: t("sidenav.items.roleManagement"),
+      path: `/${tenant}/Crm/ai-platform/role-management`,
+      icon: <Dashboard />,
+      translationKey: "roleManagement",
+    },
+      
+    {
+      title: t("sidenav.items.userManagement"),
+      path: `/${tenant}/Crm/ai-platform/user-management`,
+      icon: <Dashboard />,
+      translationKey: "userManagement",
+    },
+    {
+      title: t("sidenav.items.apiKey"),
+      path: `/${tenant}/Crm/ai-platform/api-key`,
+      icon: <Dashboard />,
+      translationKey: "apiKey",
+    },
+    {
+      title: t("sidenav.items.apiCredits"),
+      path: `/${tenant}/Crm/ai-platform/credits`,
+      icon: <Dashboard />,
+      translationKey: "apiCredits",
+    },
+      
+  ]
+
+  const TenantAdminItems: NavItem[] = [
+    {
+      title: t("sidenav.items.dashboard"),
+      path: `/${tenant}/Crm/tenant-admin/tenant-dashboard`,
+      icon: <ContactsOutlined />,
+      translationKey: "dashboard",
+    },
+    {
+      title: t("sidenav.items.usersManagement"),
+      path: `/${tenant}/Crm/tenant-admin/users`,
+      icon: <ContactsOutlined />,
+      translationKey: "usersManagement",
+    },
+    {
+      title: t("sidenav.items.invoicing"),
+      path: `/${tenant}/Crm/tenant-admin/billing-invoicing`,
+      icon: <ContactsOutlined />,
+      translationKey: "invoicing",
+    },
+    {
+      title: t("sidenav.items.subscriptions"),
+      path: `/${tenant}/Crm/tenant-admin/tenant-subscriptions`,
+      icon: <ContactsOutlined />,
+      translationKey: "subscriptions",
+    },
+
+    {
+      title: t("sidenav.items.geofences"),
+      path: `/${tenant}/Crm/tenant-admin/geo-fenching`,
+      icon: <ContactsOutlined />,
+      translationKey: "geofencing",
+    },
+    
+
+    {
+      title: t("sidenav.items.sources"),
+      path: `/${tenant}/Crm/tenant-admin/sources`,
+      icon: <ContactsOutlined />,
+      translationKey: "sources",
+    },
+    {
+      title: t("sidenav.items.settings"),
+      path: `/${tenant}/Crm/tenant-admin/setting-config`,
+      icon: <ContactsOutlined />,
+      translationKey: "settings",
+    },
+    {
+      title: t("sidenav.items.paymentGateway"),
+      path: `/${tenant}/Crm/tenant-admin/payment-gateway`,
+      icon: <ContactsOutlined />,
+      translationKey: "paymentGateway",
+    },
+    {
+      title: t("sidenav.items.bankAccount"),
+      path: `/${tenant}/Crm/tenant-admin/bank-accounts`,
+      icon: <ContactsOutlined />,
+      translationKey: "bankAccount",
+    },
+
+    {
+      title: t("sidenav.items.configurations"),
+      path: `/${tenant}/Crm/tenant-admin/settings`,
+      icon: <ContactsOutlined />,
+      translationKey: "configurations",
+    },
+   
+  
+  ];
+  
+  const ServiceManagementItems: NavItem[] = [
+    {
+      title: "Dashboard",
+      path: `/${tenant}/Crm/service-management/dashboard`,
+      icon: <Dashboard />,
+      translationKey: "sidenav.items.dashboard",
+    },
+    {
+      title: "Service Tickets",
+      path: `/${tenant}/Crm/service-management/service-tickets`,
+      icon: <ConfirmationNumber />,
+      translationKey: "sidenav.items.serviceTickets",
+    },
+    {
+      title: "Configuration",
+      path: `/${tenant}/Crm/service-management/configuration`,
+      icon: <Settings />,
+      translationKey: "sidenav.items.configuration",
+    },
+    {
+      title: "User Management",
+      path: `/${tenant}/Crm/service-management/user-management`,
+      icon: <People />,
+      translationKey: "sidenav.items.userManagement",
+    },
+  ];
+
+  const EngagementItems: NavItem[] = [
+  
+    { 
+      title: 'Contacts', 
+      path: `/${tenant}/Crm/engagement/contacts`, 
+      icon: <ContactsOutlined />, 
+      translationKey: 'contacts' 
+    },
+    { 
+      title: 'Lists', 
+      path: `/${tenant}/Crm/engagement/lists`, 
+      icon: <ListAltOutlined />, 
+      translationKey: 'lists' 
+    },
+    { 
+      title: 'Campaigns', 
+      path: `/${tenant}/Crm/engagement/campaigns`, 
+      icon: <CampaignOutlined />, 
+      translationKey: 'campaigns' 
+    },
+    { 
+      title: 'Campaign Analytics', 
+      path: `/${tenant}/Crm/engagement/campaigns/analytics`, 
+      icon: <AnalyticsOutlined />, 
+      translationKey: 'campaignAnalytics' 
+    },
+    { 
+      title: 'Bulk Verify', 
+      path: `/${tenant}/Crm/engagement/bulk-verify/status`, 
+      icon: <VerifiedUserOutlined />, 
+      translationKey: 'bulkVerify' 
+    },
+  ];
 
   const crmItems: NavItem[] = [
     {
@@ -145,6 +337,12 @@ export default function SideNav({
       path: `/${tenant}/Crm/admin/invoices`,
       icon: <ReceiptOutlined />,
       translationKey: "invoices",
+    },
+    {
+      title: t("sidenav.items.receipts"),
+      path: `/${tenant}/Crm/admin/receipts`,
+      icon: <PaymentsIcon />,
+      translationKey: "receipts",
     },
   ];
   const customerItems: NavItem[] = [
@@ -427,7 +625,8 @@ export default function SideNav({
 
       // Use startTransition to avoid blocking UI during navigation
       startTransition(() => {
-        // Use shallow routing for faster navigation within the same layout
+        // Make sure path includes the tenant slug for proper routing
+        // Use the complete path as is without modifications
         router.push(path, { scroll: false });
       });
     },
@@ -506,6 +705,35 @@ export default function SideNav({
   }, [searchQuery, paymentMethodsItems]);
 
 
+  const filteredTenantAdminItems = useMemo(() => {
+    if (!searchQuery) return TenantAdminItems;
+    return TenantAdminItems.filter((item) =>
+      item.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery, TenantAdminItems]);
+
+  const filteredServiceManagementItems = useMemo(() => {
+    if (!searchQuery) return ServiceManagementItems;
+    return ServiceManagementItems.filter((item) =>
+      item.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery, ServiceManagementItems]);
+
+  const filteredEngagementItems = useMemo(() => {
+    if (!searchQuery) return EngagementItems;
+    return EngagementItems.filter((item) =>
+      item.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery, EngagementItems]);
+
+  const filteredAiPlatformItems = useMemo(() => {
+    if (!searchQuery) return AI_Platform;
+    return AI_Platform.filter((item) =>
+      item.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery, AI_Platform]);
+
+
   // Determine if sections should be shown based on search results
   const showCrmSection = filteredCrmItems.length > 0;
   const showMastersSection = filteredMastersItems.length > 0;
@@ -517,6 +745,10 @@ export default function SideNav({
   const showOrdersSection = filteredOrdersItems.length > 0;
   const showOpportunitiesSection = filteredOpportunityItems.length > 0;
   const showPaymentMethodsSection = filteredPaymentMethodsItems.length > 0;
+  const showTenantAdminSection = filteredTenantAdminItems.length > 0;
+  const showServiceManagementSection = filteredServiceManagementItems.length > 0;
+  const showEngagementSection = filteredEngagementItems.length > 0;
+  const showAiPlatformSection = filteredAiPlatformItems.length > 0;
 
   const filteredCheckoutItems = useMemo(() => {
     if (!searchQuery) return checkoutItems;
@@ -586,7 +818,11 @@ export default function SideNav({
                 prefetch={true}
                 onClick={(e) => {
                   e.preventDefault();
-                  handleNavigation(item.path);
+                  // Ensure we're using the fully qualified path with tenant
+                  const fullPath = item.path.startsWith('/') && tenant ? 
+                    item.path : 
+                    `/${tenant}/Crm/${item.path.replace(/^\/+/, '')}`;
+                  handleNavigation(fullPath);
                 }}
                 selected={
                   isPathActive(item.path) || activeNavPath === item.path
@@ -642,7 +878,11 @@ export default function SideNav({
             prefetch={true}
             onClick={(e) => {
               e.preventDefault();
-              handleNavigation(item.path);
+              // Ensure we're using the fully qualified path with tenant
+              const fullPath = item.path.startsWith('/') && tenant ? 
+                item.path : 
+                `/${tenant}/Crm/${item.path.replace(/^\/+/, '')}`;
+              handleNavigation(fullPath);
             }}
             selected={pathname === item.path || activeNavPath === item.path}
             sx={{
@@ -763,6 +1003,45 @@ export default function SideNav({
                     onToggle={() => setCrmOpen(!crmOpen)}
                   />
                 )}
+
+
+              {showAiPlatformSection && (
+                  <ExpandedNavSection
+                    title={t("sidenav.aiPlatform")}
+                    items={filteredAiPlatformItems}
+                    isOpen={aiPlatformOpen}
+                    onToggle={() => setAiPlatformOpen(!aiPlatformOpen)}
+                  />
+                )}
+
+              {showTenantAdminSection && (
+                  <ExpandedNavSection
+                    title={t("sidenav.tenantAdmin")}
+                    items={filteredTenantAdminItems}
+                    isOpen={tenantAdminOpen}
+                    onToggle={() => setTenantAdminOpen(!tenantAdminOpen)}
+                  />
+                )}
+
+                {showServiceManagementSection && (
+                  <ExpandedNavSection
+                    title={t("sidenav.serviceManagement")}
+                    items={filteredServiceManagementItems}
+                    isOpen={serviceManagementOpen}
+                    onToggle={() => setServiceManagementOpen(!serviceManagementOpen)}
+                  />
+                )}
+
+                {showEngagementSection && (
+                  <ExpandedNavSection
+                    title={t("sidenav.engagement")}
+                    items={filteredEngagementItems}
+                    isOpen={engagementOpen}
+                    onToggle={() => setEngagementOpen(!engagementOpen)}
+                  />
+                )}
+
+
                 {showProductSection && (
                   <ExpandedNavSection
                     title={t("sidenav.product")}
@@ -838,6 +1117,7 @@ export default function SideNav({
                     onToggle={() => setOpportunitiesOpen(!opportunitiesOpen)}
                   />
                 )}
+               
                 {showPaymentMethodsSection && (
                   <ExpandedNavSection
                     title={t("sidenav.paymentMethods")}

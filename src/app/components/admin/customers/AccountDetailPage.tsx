@@ -1,24 +1,37 @@
-import { FC, useState } from 'react';
-import { Box, Grid, Paper, Typography, Skeleton, Alert, Stack, Button, CircularProgress } from '@mui/material';
-import { useTranslation } from 'react-i18next';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AccountDetailHeader } from '@/app/components/admin/customers/AccountDetailHeader';
-import { AccountDetailTabs } from '@/app/components/admin/customers/AccountDetailTabs';
-import AccountDetailsSidebar from '@/app/components/admin/customers/AccountDetailsSidebar';
-import useCustomFieldDefinitions from '@/app/hooks/api/useCustomFieldDefinitions';
-import { AccountDetailData } from '@/app/types/account';
-import { AddressFormData, AddressForm } from '@/app/components/admin/customers/forms/AddressForm';
-import AnimatedDrawer from '@/app/components/common/AnimatedDrawer';
-import Notification from '@/app/components/common/Notification';
-import api from '@/lib/api';
-import { getAuthHeaders } from '@/app/hooks/api/auth';
-import { DrawerProvider, useDrawer } from '@/app/contexts/DrawerContext';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import EditIcon from '@mui/icons-material/Edit';
-import ContactForm, { ContactFormData } from './forms/ContactForm';
-import ContactsTabContent from './ContactsTabContent';
-import TaskForm, { TaskFormData, TaskApiData } from './forms/TaskForm';
-import TasksTabContent from './TasksTabContent';
+import { FC, useState } from "react";
+import {
+  Box,
+  Grid,
+  Paper,
+  Typography,
+  Skeleton,
+  Alert,
+  Stack,
+  Button,
+  CircularProgress,
+} from "@mui/material";
+import { useTranslation } from "react-i18next";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AccountDetailHeader } from "@/app/components/admin/customers/AccountDetailHeader";
+import { AccountDetailTabs } from "@/app/components/admin/customers/AccountDetailTabs";
+import AccountDetailsSidebar from "@/app/components/admin/customers/AccountDetailsSidebar";
+import useCustomFieldDefinitions from "@/app/hooks/api/useCustomFieldDefinitions";
+import { AccountDetailData } from "@/app/types/account";
+import {
+  AddressFormData,
+  AddressForm,
+} from "@/app/components/admin/customers/forms/AddressForm";
+import AnimatedDrawer from "@/app/components/common/AnimatedDrawer";
+import Notification from "@/app/components/common/Notification";
+import api from "@/lib/api";
+import { getAuthHeaders } from "@/app/hooks/api/auth";
+import { DrawerProvider, useDrawer } from "@/app/contexts/DrawerContext";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import EditIcon from "@mui/icons-material/Edit";
+import ContactForm, { ContactFormData } from "./forms/ContactForm";
+import ContactsTabContent from "./ContactsTabContent";
+import TaskForm, { TaskFormData, TaskApiData } from "./forms/TaskForm";
+import TasksTabContent from "./TasksTabContent";
 
 interface AccountDetailPageProps {
   accountId: string;
@@ -46,29 +59,36 @@ const AccountDetailPageContent: FC<AccountDetailPageProps> = ({
   const [addressDrawerOpen, setAddressDrawerOpen] = useState(false);
   const [contactDrawerOpen, setContactDrawerOpen] = useState(false);
   const [taskDrawerOpen, setTaskDrawerOpen] = useState(false);
-  const [selectedAddress, setSelectedAddress] = useState<AddressFormData | undefined>(undefined);
-  const [selectedContact, setSelectedContact] = useState<ContactFormData | undefined>(undefined);
-  const [selectedTask, setSelectedTask] = useState<TaskFormData | undefined>(undefined);
+  const [selectedAddress, setSelectedAddress] = useState<
+    AddressFormData | undefined
+  >(undefined);
+  const [selectedContact, setSelectedContact] = useState<
+    ContactFormData | undefined
+  >(undefined);
+  const [selectedTask, setSelectedTask] = useState<TaskFormData | undefined>(
+    undefined
+  );
   const [isViewMode, setIsViewMode] = useState(true);
   const [notification, setNotification] = useState<{
     open: boolean;
     message: string;
-    severity: 'success' | 'error' | 'info' | 'warning';
-  }>({ open: false, message: '', severity: 'info' });
-  
+    severity: "success" | "error" | "info" | "warning";
+  }>({ open: false, message: "", severity: "info" });
+
   // Fetch custom field definitions for accounts
-  const { data: customFieldDefinitions = [] } = useCustomFieldDefinitions('Account');
-  
+  const { data: customFieldDefinitions = [] } =
+    useCustomFieldDefinitions("Account");
+
   // Function to map API address data to form data structure
   const mapApiAddressToFormData = (apiAddress: any): AddressFormData => {
     return {
       id: apiAddress.id,
       address_type: apiAddress.address_type,
       street_1: apiAddress.street_1,
-      street_2: apiAddress.street_2 || '',
-      street_3: apiAddress.street_3 || '',
+      street_2: apiAddress.street_2 || "",
+      street_3: apiAddress.street_3 || "",
       city: apiAddress.city,
-      state: apiAddress.state_province || '',
+      state: apiAddress.state_province || "",
       postal_code: apiAddress.postal_code,
       country: apiAddress.country,
       is_default: false, // API doesn't have this field
@@ -82,7 +102,7 @@ const AccountDetailPageContent: FC<AccountDetailPageProps> = ({
       updated_at: apiAddress.updated_at,
       created_by: apiAddress.created_by,
       updated_by: apiAddress.updated_by,
-      custom_fields: apiAddress.custom_fields
+      custom_fields: apiAddress.custom_fields,
     };
   };
 
@@ -92,15 +112,17 @@ const AccountDetailPageContent: FC<AccountDetailPageProps> = ({
       id: formData.id,
       address_type: formData.address_type,
       street_1: formData.street_1,
-      street_2: formData.street_2 || '',
-      street_3: formData.street_3 || '',
+      street_2: formData.street_2 || "",
+      street_3: formData.street_3 || "",
       city: formData.city,
-      state_province: formData.state || formData.state_province || '',
+      state_province: formData.state || formData.state_province || "",
       postal_code: formData.postal_code,
       country: formData.country,
-      is_primary_billing: formData.is_billing || formData.is_primary_billing || false,
-      is_primary_shipping: formData.is_shipping || formData.is_primary_shipping || false,
-      custom_fields: formData.custom_fields || {}
+      is_primary_billing:
+        formData.is_billing || formData.is_primary_billing || false,
+      is_primary_shipping:
+        formData.is_shipping || formData.is_primary_shipping || false,
+      custom_fields: formData.custom_fields || {},
     };
   };
 
@@ -115,39 +137,48 @@ const AccountDetailPageContent: FC<AccountDetailPageProps> = ({
     }
     setAddressDrawerOpen(true);
   };
-  
+
   // Function to open the contact drawer
-  const openContactDrawer = (initialData?: ContactFormData, accountId?: string) => {
-    setSelectedContact(initialData || {
-      first_name: '',
-      last_name: '',
-      email: '',
-      job_title: '',
-      status: 'active',
-      is_primary: false,
-      account_id: accountId || accountData?.id || '',
-    });
+  const openContactDrawer = (
+    initialData?: ContactFormData,
+    accountId?: string
+  ) => {
+    setSelectedContact(
+      initialData || {
+        first_name: "",
+        last_name: "",
+        email: "",
+        job_title: "",
+        status: "active",
+        is_primary: false,
+        account_id: accountId || accountData?.id || "",
+      }
+    );
     setContactDrawerOpen(true);
     setIsViewMode(initialData?.id ? true : false);
-    
+
     // If we're opening for a new contact, make sure we're in edit mode
     if (!initialData?.id) {
       setIsViewMode(false);
     }
   };
-  
+
   // Function to open the task drawer
-  const openTaskDrawer = (initialData?: TaskFormData, accountId?: string, contactId?: string) => {
+  const openTaskDrawer = (
+    initialData?: TaskFormData,
+    accountId?: string,
+    contactId?: string
+  ) => {
     // For new tasks, don't include any ID to prevent conflicts
     if (!initialData?.id) {
       setSelectedTask({
-        subject: '',
-        description: '',
-        status: 'not_started', // Use the correct backend value
-        priority: 'medium', // Use the correct backend value
+        subject: "",
+        description: "",
+        status: "not_started", // Use the correct backend value
+        priority: "medium", // Use the correct backend value
         due_date: null,
-        account_id: accountId || accountData?.id || '',
-        contact_id: contactId || '',
+        account_id: accountId || accountData?.id || "",
+        contact_id: contactId || "",
         owner: null,
         // Explicitly don't include an ID for new tasks
       });
@@ -155,61 +186,61 @@ const AccountDetailPageContent: FC<AccountDetailPageProps> = ({
       // For existing tasks, include the ID for editing
       setSelectedTask(initialData);
     }
-    
+
     setTaskDrawerOpen(true);
     setIsViewMode(initialData?.id ? true : false);
-    
+
     // If we're opening for a new task, make sure we're in edit mode
     if (!initialData?.id) {
       setIsViewMode(false);
     }
   };
-  
+
   // Handle sidebar item click
   const handleSidebarItemClick = (itemId: string) => {
     drawerContext.setActiveSidebarItem(itemId);
-    if (itemId === 'edit') {
+    if (itemId === "edit") {
       setIsViewMode(false);
-    } else if (itemId === 'view') {
+    } else if (itemId === "view") {
       setIsViewMode(true);
     }
   };
-  
+
   // Address save mutation
   const saveAddressMutation = useMutation({
     mutationFn: (addressData: AddressFormData) => {
       // Map form data to API structure
       const apiData = mapFormDataToApiAddress(addressData);
-      
+
       // Add the account ID to the data - backend expects account_id as an integer
       apiData.account_id = parseInt(accountId, 10);
-      
+
       // Determine if this is a create or update operation
       if (addressData.id) {
         // Update existing address
         return api.put(`addresses/${addressData.id}/`, apiData, {
-          headers: getAuthHeaders()
+          headers: getAuthHeaders(),
         });
       } else {
         // Create new address
         return api.post(`addresses/`, apiData, {
-          headers: getAuthHeaders()
+          headers: getAuthHeaders(),
         });
       }
     },
     onSuccess: () => {
       // Invalidate the account detail query to refresh the data
-      queryClient.invalidateQueries({ queryKey: ['accountDetail', accountId] });
-      
+      queryClient.invalidateQueries({ queryKey: ["accountDetail", accountId] });
+
       // Show success notification
       setNotification({
         open: true,
-        message: selectedAddress 
-          ? t('notifications.addressUpdated') 
-          : t('notifications.addressCreated'),
-        severity: 'success'
+        message: selectedAddress
+          ? t("notifications.addressUpdated")
+          : t("notifications.addressCreated"),
+        severity: "success",
       });
-      
+
       // Close the drawer
       setAddressDrawerOpen(false);
       setSelectedAddress(undefined);
@@ -218,77 +249,77 @@ const AccountDetailPageContent: FC<AccountDetailPageProps> = ({
       // Show error notification
       setNotification({
         open: true,
-        message: `${selectedAddress 
-          ? t('notifications.addressUpdateFailed') 
-          : t('notifications.addressCreateFailed')}: ${error.message}`,
-        severity: 'error'
+        message: `${
+          selectedAddress
+            ? t("notifications.addressUpdateFailed")
+            : t("notifications.addressCreateFailed")
+        }: ${error.message}`,
+        severity: "error",
       });
-    }
+    },
   });
-  
+
   // Function to handle saving an address
   const handleSaveAddress = (formData: AddressFormData) => {
     saveAddressMutation.mutate(formData);
   };
-  
+
   // Handle save contact
   const saveContactMutation = useMutation({
     mutationFn: async (formData: ContactFormData) => {
-      const url = formData.id 
-        ? `/contacts/${formData.id}/` 
-        : '/contacts/';
-      
-      const method = formData.id ? 'put' : 'post';
-      
+      const url = formData.id ? `/contacts/${formData.id}/` : "/contacts/";
+
+      const method = formData.id ? "put" : "post";
+
       const response = await api[method](url, formData, {
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
       });
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['accountDetail', accountId] });
+      queryClient.invalidateQueries({ queryKey: ["accountDetail", accountId] });
       setContactDrawerOpen(false);
       setNotification({
         open: true,
-        message: selectedContact?.id ? 'Contact updated successfully' : 'Contact created successfully',
-        severity: 'success'
+        message: selectedContact?.id
+          ? "Contact updated successfully"
+          : "Contact created successfully",
+        severity: "success",
       });
     },
     onError: (error: any) => {
       setNotification({
         open: true,
-        message: `Error: ${error.message || 'Failed to save contact'}`,
-        severity: 'error'
+        message: `Error: ${error.message || "Failed to save contact"}`,
+        severity: "error",
       });
-    }
+    },
   });
-  
+
   const handleSaveContact = (formData: ContactFormData) => {
     // Ensure account_id is set properly for both new and existing contacts
     const updatedFormData = {
       ...formData,
-      account_id: formData.account_id || accountId // Use the current accountId if not provided
+      account_id: formData.account_id || accountId, // Use the current accountId if not provided
     };
     saveContactMutation.mutate(updatedFormData);
   };
-  
+
   // Handle save task
   const saveTaskMutation = useMutation({
     mutationFn: async (formData: any) => {
-      const url = formData.id 
-        ? `/tasks/${formData.id}/` 
-        : '/tasks/';
-      
-      const method = formData.id ? 'put' : 'post';
-      
+      const url = formData.id ? `/tasks/${formData.id}/` : "/tasks/";
+
+      const method = formData.id ? "put" : "post";
+
       const response = await api[method](url, formData, {
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
       });
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['accountDetail', accountId] });
-      queryClient.invalidateQueries({ queryKey: ['accountTasks', accountId] });
+      queryClient.invalidateQueries({ queryKey: ["accountDetail", accountId] });
+      queryClient.invalidateQueries({ queryKey: ["accountTasks", accountId] });
       setTaskDrawerOpen(false);
       // Reset task data after successful save
       setTimeout(() => {
@@ -296,19 +327,21 @@ const AccountDetailPageContent: FC<AccountDetailPageProps> = ({
       }, 300); // Small delay to ensure drawer animation completes
       setNotification({
         open: true,
-        message: selectedTask?.id ? t('notifications.taskUpdated') || 'Task updated successfully' : t('notifications.taskCreated') || 'Task created successfully',
-        severity: 'success'
+        message: selectedTask?.id
+          ? t("notifications.taskUpdated") || "Task updated successfully"
+          : t("notifications.taskCreated") || "Task created successfully",
+        severity: "success",
       });
     },
     onError: (error: any) => {
       setNotification({
         open: true,
-        message: `Error: ${error.message || 'Failed to save task'}`,
-        severity: 'error'
+        message: `Error: ${error.message || "Failed to save task"}`,
+        severity: "error",
       });
-    }
+    },
   });
-  
+
   const handleSaveTask = (formData: TaskFormData | TaskApiData) => {
     // Transform the form data to match the backend API's expected structure
     const apiPayload: any = {
@@ -316,50 +349,50 @@ const AccountDetailPageContent: FC<AccountDetailPageProps> = ({
       subject: formData.subject,
       description: formData.description,
       due_date: formData.due_date,
-      
+
       // Map status and priority to backend expected values
       status: mapStatusToBackend(formData.status),
       priority: mapPriorityToBackend(formData.priority),
-      
+
       // Map relationship fields to the expected API field names
       related_account_id: formData.account_id || accountId,
       related_contact_id: formData.contact_id || null,
-      
+
       // Map owner to assignee_id
       assignee_id: formData.owner || null,
-      
+
       // Include completed information if available
-      completed_date: formData.completed_at || null
+      completed_date: formData.completed_at || null,
     };
-    
+
     // Only include ID for updates, not for new tasks
     if (formData.id) {
       apiPayload.id = formData.id;
     }
-    
+
     saveTaskMutation.mutate(apiPayload);
   };
-  
+
   // Helper function to map frontend status values to backend expected values
   const mapStatusToBackend = (status: string): string => {
     const statusMap: Record<string, string> = {
-      'open': 'not_started',
+      open: "not_started",
       // Add other mappings if needed
     };
-    
+
     return statusMap[status] || status;
   };
-  
+
   // Helper function to map frontend priority values to backend expected values
   const mapPriorityToBackend = (priority: string): string => {
     const priorityMap: Record<string, string> = {
-      'normal': 'medium',
+      normal: "medium",
       // Add other mappings if needed
     };
-    
+
     return priorityMap[priority] || priority;
   };
-  
+
   // Handle notification close
   const handleNotificationClose = () => {
     setNotification({ ...notification, open: false });
@@ -370,10 +403,10 @@ const AccountDetailPageContent: FC<AccountDetailPageProps> = ({
       <Box sx={{ p: 3 }}>
         <Skeleton variant="rectangular" height={60} sx={{ mb: 2 }} />
         <Grid container spacing={3}>
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Skeleton variant="rectangular" height={400} />
           </Grid>
-          <Grid item xs={12} md={8}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <Skeleton variant="rectangular" height={60} sx={{ mb: 2 }} />
             <Skeleton variant="rectangular" height={340} />
           </Grid>
@@ -386,7 +419,7 @@ const AccountDetailPageContent: FC<AccountDetailPageProps> = ({
     return (
       <Box sx={{ p: 3 }}>
         <Alert severity="error">
-          {t('common.errors.loadingFailed', { resource: t('common.account') })}
+          {t("common.errors.loadingFailed", { resource: t("common.account") })}
           {error?.message && `: ${error.message}`}
         </Alert>
       </Box>
@@ -397,48 +430,47 @@ const AccountDetailPageContent: FC<AccountDetailPageProps> = ({
     <>
       <Box>
         {/* Header Section */}
-        <AccountDetailHeader 
-          account={accountData} 
+        <AccountDetailHeader
+          account={accountData}
           tabButtons={[
             {
-              label: t('common.actions.logActivity'),
+              label: t("common.actions.logActivity"),
               onClick: () => {}, // Placeholder for log activity action
-              disabled: false
+              disabled: false,
             },
             {
-              label: t('common.actions.newTask'),
+              label: t("common.actions.newTask"),
               onClick: () => openTaskDrawer(undefined, accountId),
-              disabled: false
+              disabled: false,
             },
             {
-              label: t('common.actions.addContact'),
+              label: t("common.actions.addContact"),
               onClick: () => openContactDrawer(undefined, accountId),
-              disabled: false
+              disabled: false,
             },
             {
-              label: t('common.actions.addAddress'),
+              label: t("common.actions.addAddress"),
               onClick: () => openAddressDrawer(),
-              disabled: false
-            }
+              disabled: false,
+            },
           ]}
         />
 
         {/* Two-Column Layout - Reversed from original design based on requirements */}
         <Grid container spacing={3}>
-
           {/* Left Column - Account Details Sidebar (30% width) */}
-          <Grid item xs={12} md={3}>
-            <AccountDetailsSidebar 
-              accountData={accountData} 
+          <Grid size={{ xs: 12, md: 3 }}>
+            <AccountDetailsSidebar
+              accountData={accountData}
               setActiveTab={setActiveTab}
               customFieldDefinitions={customFieldDefinitions}
             />
           </Grid>
           {/* Right Column - Tabs (70% width) */}
-          <Grid item xs={12} md={9}>
-            <AccountDetailTabs 
-              account={accountData} 
-              accountId={accountId} 
+          <Grid size={{ xs: 12, md: 9 }}>
+            <AccountDetailTabs
+              account={accountData}
+              accountId={accountId}
               activeTab={activeTab}
               setActiveTab={setActiveTab}
               openAddressDrawer={openAddressDrawer}
@@ -448,65 +480,83 @@ const AccountDetailPageContent: FC<AccountDetailPageProps> = ({
           </Grid>
         </Grid>
       </Box>
-      
+
       {/* Address Drawer */}
       <AnimatedDrawer
         open={addressDrawerOpen}
         onClose={() => setAddressDrawerOpen(false)}
         initialWidth={550}
         expandedWidth={550}
-        title={selectedAddress ? 
-          (isViewMode ? t('addressDrawer.viewAddress') : t('addressDrawer.editAddress')) : 
-          t('addressDrawer.newAddress')
+        title={
+          selectedAddress
+            ? isViewMode
+              ? t("addressDrawer.viewAddress")
+              : t("addressDrawer.editAddress")
+            : t("addressDrawer.newAddress")
         }
-        sidebarIcons={selectedAddress ? [
-          {
-            id: 'view',
-            icon: <VisibilityIcon />,
-            tooltip: t('common.view') || 'View',
-            onClick: () => handleSidebarItemClick('view'),
-          },
-          {
-            id: 'edit',
-            icon: <EditIcon />,
-            tooltip: t('common.edit') || 'Edit',
-            onClick: () => handleSidebarItemClick('edit'),
-          },
-        ] : undefined}
+        sidebarIcons={
+          selectedAddress
+            ? [
+                {
+                  id: "view",
+                  icon: <VisibilityIcon />,
+                  tooltip: t("common.view") || "View",
+                  onClick: () => handleSidebarItemClick("view"),
+                },
+                {
+                  id: "edit",
+                  icon: <EditIcon />,
+                  tooltip: t("common.edit") || "Edit",
+                  onClick: () => handleSidebarItemClick("edit"),
+                },
+              ]
+            : undefined
+        }
         footerContent={
-          <Box sx={{ display: 'flex', width: '100%', justifyContent: 'flex-end' }}>
+          <Box
+            sx={{ display: "flex", width: "100%", justifyContent: "flex-end" }}
+          >
             {!isViewMode && (
-              <Button 
-                variant="contained" 
+              <Button
+                variant="contained"
                 color="primary"
                 disabled={saveAddressMutation.isPending}
                 onClick={() => {
                   // Trigger form submission by clicking the hidden submit button
-                  const submitButton = document.getElementById('address-form-submit') as HTMLButtonElement;
+                  const submitButton = document.getElementById(
+                    "address-form-submit"
+                  ) as HTMLButtonElement;
                   if (submitButton) {
                     submitButton.click();
                   } else {
                     // Fallback: If button not found, call the handler directly
-                    console.log('Submit button not found, using fallback method');
+                    console.log(
+                      "Submit button not found, using fallback method"
+                    );
                     if (selectedAddress) {
                       handleSaveAddress({
-                        ...selectedAddress
+                        ...selectedAddress,
                       });
                     }
                   }
                 }}
-                startIcon={saveAddressMutation.isPending ? <CircularProgress size={20} /> : null}
+                startIcon={
+                  saveAddressMutation.isPending ? (
+                    <CircularProgress size={20} />
+                  ) : null
+                }
                 size="small"
               >
-                {saveAddressMutation.isPending ? t('common.processing') : t('common.save')}
+                {saveAddressMutation.isPending
+                  ? t("common.processing")
+                  : t("common.save")}
               </Button>
             )}
           </Box>
         }
       >
-        <Box >
-         
-          <AddressForm 
+        <Box>
+          <AddressForm
             initialData={selectedAddress}
             onSubmit={handleSaveAddress}
             onCancel={() => setAddressDrawerOpen(false)}
@@ -515,64 +565,83 @@ const AccountDetailPageContent: FC<AccountDetailPageProps> = ({
           />
         </Box>
       </AnimatedDrawer>
-      
+
       {/* Contact Drawer */}
       <AnimatedDrawer
         open={contactDrawerOpen}
         onClose={() => setContactDrawerOpen(false)}
         initialWidth={550}
         expandedWidth={550}
-        title={selectedContact?.id ? 
-          (isViewMode ? t('contactDrawer.viewContact') || 'View Contact' : t('contactDrawer.editContact') || 'Edit Contact') : 
-          t('contactDrawer.newContact') || 'New Contact'
+        title={
+          selectedContact?.id
+            ? isViewMode
+              ? t("contactDrawer.viewContact") || "View Contact"
+              : t("contactDrawer.editContact") || "Edit Contact"
+            : t("contactDrawer.newContact") || "New Contact"
         }
-        sidebarIcons={selectedContact?.id ? [
-          {
-            id: 'view',
-            icon: <VisibilityIcon />,
-            tooltip: t('common.view') || 'View',
-            onClick: () => handleSidebarItemClick('view'),
-          },
-          {
-            id: 'edit',
-            icon: <EditIcon />,
-            tooltip: t('common.edit') || 'Edit',
-            onClick: () => handleSidebarItemClick('edit'),
-          },
-        ] : undefined}
+        sidebarIcons={
+          selectedContact?.id
+            ? [
+                {
+                  id: "view",
+                  icon: <VisibilityIcon />,
+                  tooltip: t("common.view") || "View",
+                  onClick: () => handleSidebarItemClick("view"),
+                },
+                {
+                  id: "edit",
+                  icon: <EditIcon />,
+                  tooltip: t("common.edit") || "Edit",
+                  onClick: () => handleSidebarItemClick("edit"),
+                },
+              ]
+            : undefined
+        }
         footerContent={
-          <Box sx={{ display: 'flex', width: '100%', justifyContent: 'flex-end' }}>
+          <Box
+            sx={{ display: "flex", width: "100%", justifyContent: "flex-end" }}
+          >
             {!isViewMode && (
-              <Button 
-                variant="contained" 
+              <Button
+                variant="contained"
                 color="primary"
                 disabled={saveContactMutation.isPending}
                 onClick={() => {
                   // Trigger form submission by clicking the hidden submit button
-                  const submitButton = document.getElementById('contact-form-submit') as HTMLButtonElement;
+                  const submitButton = document.getElementById(
+                    "contact-form-submit"
+                  ) as HTMLButtonElement;
                   if (submitButton) {
                     submitButton.click();
                   } else {
                     // Fallback: If button not found, call the handler directly
-                    console.log('Submit button not found, using fallback method');
+                    console.log(
+                      "Submit button not found, using fallback method"
+                    );
                     if (selectedContact) {
                       handleSaveContact({
-                        ...selectedContact
+                        ...selectedContact,
                       });
                     }
                   }
                 }}
-                startIcon={saveContactMutation.isPending ? <CircularProgress size={20} /> : null}
+                startIcon={
+                  saveContactMutation.isPending ? (
+                    <CircularProgress size={20} />
+                  ) : null
+                }
                 size="small"
               >
-                {saveContactMutation.isPending ? t('common.processing') || 'Processing...' : t('common.save') || 'Save'}
+                {saveContactMutation.isPending
+                  ? t("common.processing") || "Processing..."
+                  : t("common.save") || "Save"}
               </Button>
             )}
           </Box>
         }
       >
         <Box>
-          <ContactForm 
+          <ContactForm
             initialData={selectedContact}
             onSubmit={handleSaveContact}
             onCancel={() => setContactDrawerOpen(false)}
@@ -581,7 +650,7 @@ const AccountDetailPageContent: FC<AccountDetailPageProps> = ({
           />
         </Box>
       </AnimatedDrawer>
-      
+
       {/* Task Drawer */}
       <AnimatedDrawer
         open={taskDrawerOpen}
@@ -594,57 +663,76 @@ const AccountDetailPageContent: FC<AccountDetailPageProps> = ({
         }}
         initialWidth={550}
         expandedWidth={550}
-        title={selectedTask?.id ? 
-          (isViewMode ? t('taskDrawer.viewTask') || 'View Task' : t('taskDrawer.editTask') || 'Edit Task') : 
-          t('taskDrawer.newTask') || 'New Task'
+        title={
+          selectedTask?.id
+            ? isViewMode
+              ? t("taskDrawer.viewTask") || "View Task"
+              : t("taskDrawer.editTask") || "Edit Task"
+            : t("taskDrawer.newTask") || "New Task"
         }
-        sidebarIcons={selectedTask?.id ? [
-          {
-            id: 'view',
-            icon: <VisibilityIcon />,
-            tooltip: t('common.view') || 'View',
-            onClick: () => handleSidebarItemClick('view'),
-          },
-          {
-            id: 'edit',
-            icon: <EditIcon />,
-            tooltip: t('common.edit') || 'Edit',
-            onClick: () => handleSidebarItemClick('edit'),
-          },
-        ] : undefined}
+        sidebarIcons={
+          selectedTask?.id
+            ? [
+                {
+                  id: "view",
+                  icon: <VisibilityIcon />,
+                  tooltip: t("common.view") || "View",
+                  onClick: () => handleSidebarItemClick("view"),
+                },
+                {
+                  id: "edit",
+                  icon: <EditIcon />,
+                  tooltip: t("common.edit") || "Edit",
+                  onClick: () => handleSidebarItemClick("edit"),
+                },
+              ]
+            : undefined
+        }
         footerContent={
-          <Box sx={{ display: 'flex', width: '100%', justifyContent: 'flex-end' }}>
+          <Box
+            sx={{ display: "flex", width: "100%", justifyContent: "flex-end" }}
+          >
             {!isViewMode && (
-              <Button 
-                variant="contained" 
+              <Button
+                variant="contained"
                 color="primary"
                 disabled={saveTaskMutation.isPending}
                 onClick={() => {
                   // Trigger form submission by clicking the hidden submit button
-                  const submitButton = document.getElementById('task-form-submit') as HTMLButtonElement;
+                  const submitButton = document.getElementById(
+                    "task-form-submit"
+                  ) as HTMLButtonElement;
                   if (submitButton) {
                     submitButton.click();
                   } else {
                     // Fallback: If button not found, call the handler directly
-                    console.log('Submit button not found, using fallback method');
+                    console.log(
+                      "Submit button not found, using fallback method"
+                    );
                     if (selectedTask) {
                       handleSaveTask({
-                        ...selectedTask
+                        ...selectedTask,
                       });
                     }
                   }
                 }}
-                startIcon={saveTaskMutation.isPending ? <CircularProgress size={20} /> : null}
+                startIcon={
+                  saveTaskMutation.isPending ? (
+                    <CircularProgress size={20} />
+                  ) : null
+                }
                 size="small"
               >
-                {saveTaskMutation.isPending ? t('common.processing') || 'Processing...' : t('common.save') || 'Save'}
+                {saveTaskMutation.isPending
+                  ? t("common.processing") || "Processing..."
+                  : t("common.save") || "Save"}
               </Button>
             )}
           </Box>
         }
       >
         <Box>
-          <TaskForm 
+          <TaskForm
             initialData={selectedTask}
             onSubmit={handleSaveTask}
             onCancel={() => {
@@ -660,7 +748,7 @@ const AccountDetailPageContent: FC<AccountDetailPageProps> = ({
           />
         </Box>
       </AnimatedDrawer>
-      
+
       {/* Notification */}
       <Notification
         open={notification.open}

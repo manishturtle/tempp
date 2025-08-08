@@ -198,7 +198,7 @@ export default function InvoicePage() {
                       // Fall back to legacy logo if available
                       logoSrc = `${
                         process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ||
-                        "https://bedevcockpit.turtleit.in"
+                        "http://localhost:3000/"
                       }${legacyLogo}`;
                     } else {
                       // Return empty box if no logo is available

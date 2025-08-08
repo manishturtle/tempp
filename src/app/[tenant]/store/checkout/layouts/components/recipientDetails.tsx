@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { useForm, Controller } from "react-hook-form";
+import { useParams } from "next/navigation";
 import {
   useShippingMethods,
   type ShippingMethod,
@@ -96,11 +97,34 @@ export const RecipientDetailsForm: React.FC<RecipientDetailsFormProps> = ({
 }) => {
   const { t } = useTranslation();
   const theme = useTheme();
+  const params = useParams();
   const { data: shippingMethods, isLoading, error } = useShippingMethods();
+
+  // Get user data from localStorage to pre-fill name
+  const tenantId = Array.isArray(params?.tenant)
+    ? params.tenant[0]
+    : params?.tenant || "";
+  const userKey = tenantId ? `${tenantId}_auth_user` : " ";
+  
+  // Get user's full name from localStorage
+  const getUserFullName = () => {
+    const userDataStr = localStorage.getItem(userKey);
+    if (userDataStr) {
+      try {
+        const userData = JSON.parse(userDataStr);
+        if (userData.first_name && userData.last_name) {
+          return `${userData.first_name} ${userData.last_name}`;
+        }
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
+    }
+    return recipientDetails.fullName; // Fallback to prop value
+  };
 
   const { control, handleSubmit, watch, setValue } = useForm({
     defaultValues: {
-      fullName: recipientDetails.fullName,
+      fullName: getUserFullName(),
       phoneNumber: recipientDetails.phoneNumber,
       shippingMethod: "", // Start empty and let the effect handle it
     },
@@ -295,7 +319,7 @@ export const RecipientDetailsForm: React.FC<RecipientDetailsFormProps> = ({
             )}
           />
         </Grid>
-        {allow_user_select_shipping && (
+        {allow_user_select_shipping && shippingMethods && shippingMethods.length >= 1 && (
           <>
             <Grid size={{ xs: 12 }}>
               <Typography variant="body2" color="text.secondary">

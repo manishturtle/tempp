@@ -84,11 +84,28 @@ export default function ProductDetailPage(): React.ReactElement {
   } = useProduct(
     productSku || "",
     location?.pincode && location?.country
-      ? {
-          pincode: location.pincode,
-          country: location.country,
-          customer_group_selling_channel_id: "21", // Default value, can be made dynamic
-        }
+      ? (() => {
+          let customerGroupSellingChannelId: string | undefined = undefined;
+          if (typeof window !== "undefined") {
+            const pathParts = window.location.pathname.split("/");
+            const tenantSlug = pathParts[1] || "";
+            const segmentKey = `${tenantSlug}_segmentdetails`;
+            const segmentRaw = localStorage.getItem(segmentKey);
+            if (segmentRaw) {
+              try {
+                const segmentObj = JSON.parse(segmentRaw);
+                customerGroupSellingChannelId = segmentObj.id || undefined;
+              } catch (e) {
+                // Ignore parse error
+              }
+            }
+          }
+          return {
+            pincode: location.pincode,
+            country: location.country,
+            customer_group_selling_channel_id: customerGroupSellingChannelId,
+          };
+        })()
       : undefined
   );
 

@@ -21,6 +21,7 @@ export interface SignupCredentials {
   password: string;
   password_confirm: string;
   phone?: string;
+
   // Business-specific fields
   business_name?: string;
   legal_name?: string;

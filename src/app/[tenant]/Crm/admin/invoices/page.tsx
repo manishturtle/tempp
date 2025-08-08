@@ -3,7 +3,6 @@
 import {
   Box,
   Typography,
-  Stack,
   Chip,
   Link as MuiLink,
   Alert,
@@ -23,7 +22,6 @@ import CustomDataGrid from "@/app/components/common/CustomDataGrid";
 import {
   GridColDef,
   GridPaginationModel,
-  GridSortModel,
 } from "@mui/x-data-grid";
 import AddIcon from "@mui/icons-material/Add";
 import { useAdminInvoices } from "@/app/hooks/api/admin/useAdminInvoices";
@@ -163,10 +161,12 @@ export default function AdminInvoicesPage() {
       minWidth: 150,
       renderCell: (params) => (
         <MuiLink
-          href={`/${tenantSlug}/Crm/admin/invoices/${params.row.id}`}
+          href={`/${tenantSlug}/Crm/admin/invoices/manage?mode=VIEW&id=${params.row.id}`}
           onClick={(e) => {
             e.preventDefault();
-            router.push(`/${tenantSlug}/Crm/admin/invoices/${params.row.id}`);
+            router.push(
+              `/${tenantSlug}/Crm/admin/invoices/manage?mode=VIEW&id=${params.row.id}`
+            );
           }}
           sx={{
             color: "primary.main",
@@ -181,52 +181,25 @@ export default function AdminInvoicesPage() {
       ),
     },
     {
-      field: "customer",
+      field: "account_name",
       headerName: t("admin.invoices.columns.customer", "Customer"),
       flex: 1.5,
       minWidth: 200,
-      renderCell: (params) => {
-        const accountName =
-          params.row.account_detail?.name || params.row.account?.name;
-        const contactEmail =
-          params.row.contact_detail?.email || params.row.contact?.email;
-
-        if (accountName) {
-          return (
-            <Box>
-              <Typography variant="body2" component="span">
-                {accountName}
-              </Typography>
-              {contactEmail && (
-                <Typography
-                  variant="body2"
-                  component="span"
-                  sx={{ ml: 0.5, color: "text.secondary" }}
-                >
-                  ({contactEmail})
-                </Typography>
-              )}
-            </Box>
-          );
-        }
-
-        return "—";
-      },
     },
     {
-      field: "date",
+      field: "issue_date",
       headerName: t("admin.invoices.columns.date", "Date"),
       width: 150,
       renderCell: (params) => {
         try {
-          return format(parseISO(params.row.date), "MMM dd, yyyy");
+          return format(parseISO(params.row.issue_date), "MMM dd, yyyy");
         } catch (error) {
           return params.value || "—";
         }
       },
     },
     {
-      field: "grand_total",
+      field: "total_amount",
       headerName: t("admin.invoices.columns.total", "Total"),
       width: 120,
       renderCell: (params) => {

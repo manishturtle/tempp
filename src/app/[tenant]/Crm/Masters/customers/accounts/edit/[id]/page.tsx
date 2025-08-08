@@ -500,7 +500,7 @@ function AccountEditPageContent() {
       <form>
         <Grid container spacing={3}>
           {/* Left Column - 70% width */}
-          <Grid item xs={12} md={8} lg={9}>
+          <Grid size={{ xs: 12, md: 8, lg: 9 }}>
             {/* Account Information Section */}
             <Paper 
               elevation={0} 
@@ -513,7 +513,7 @@ function AccountEditPageContent() {
               
               <Grid container spacing={2}>
                 {/* Account Name */}
-                <Grid item xs={12}>
+                <Grid size={12}>
                   {isEditMode ? (
                     <Controller
                       name="name"
@@ -543,7 +543,7 @@ function AccountEditPageContent() {
                 </Grid>
                 
                 {/* Parent Account */}
-                <Grid item xs={12}>
+                <Grid size={12}>
                   {isEditMode ? (
                     <EntityAutocomplete
                       name="parent_account"
@@ -568,7 +568,7 @@ function AccountEditPageContent() {
                 </Grid>
                 
                 {/* Customer Group */}
-                <Grid item xs={12}>
+                <Grid size={12}>
                   {isEditMode ? (
                     <EntityAutocomplete
                       name="customer_group"
@@ -604,7 +604,7 @@ function AccountEditPageContent() {
                 </Grid>
                 
                 {/* Account Number */}
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   {isEditMode ? (
                     <Controller
                       name="account_number"
@@ -633,7 +633,7 @@ function AccountEditPageContent() {
                 </Grid>
                 
                 {/* Status */}
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   {isEditMode ? (
                     <Controller
                       name="status"
@@ -670,7 +670,7 @@ function AccountEditPageContent() {
                 </Grid>
                 
                 {/* Owner */}
-                <Grid item xs={12}>
+                <Grid size={12}>
                   {isEditMode ? (
                     <EntityAutocomplete
                       name="owner"
@@ -694,7 +694,7 @@ function AccountEditPageContent() {
                 </Grid>
                 
                 {/* Website */}
-                <Grid item xs={12}>
+                <Grid size={12}>
                   {isEditMode ? (
                     <Controller
                       name="website"
@@ -724,7 +724,7 @@ function AccountEditPageContent() {
                 </Grid>
                 
                 {/* Primary Phone */}
-                <Grid item xs={12}>
+                <Grid size={12}>
                   {isEditMode ? (
                     <Controller
                       name="primary_phone"
@@ -770,7 +770,7 @@ function AccountEditPageContent() {
                 
                 <Grid container spacing={2}>
                   {/* Legal Name */}
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     {isEditMode ? (
                       <Controller
                         name="legal_name"
@@ -799,7 +799,7 @@ function AccountEditPageContent() {
                   </Grid>
                   
                   {/* Industry */}
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     {isEditMode ? (
                       <Controller
                         name="industry"
@@ -836,7 +836,7 @@ function AccountEditPageContent() {
                   </Grid>
                   
                   {/* Company Size */}
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     {isEditMode ? (
                       <Controller
                         name="company_size"
@@ -872,7 +872,7 @@ function AccountEditPageContent() {
                   </Grid>
                   
                   {/* Tax ID */}
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     {isEditMode ? (
                       <Controller
                         name="tax_id"
@@ -1197,7 +1197,7 @@ function AccountEditPageContent() {
           </Grid>
           
           {/* Right Column - 30% width */}
-          <Grid item xs={12} md={4} lg={3}>
+          <Grid size={{ xs: 12, md: 4, lg: 3 }}>
             {/* Additional Information Section */}
             <Paper 
               elevation={0} 
@@ -1210,7 +1210,7 @@ function AccountEditPageContent() {
               
               <Grid container spacing={2}>
                 {/* Customer Reference */}
-                <Grid item xs={12}>
+                <Grid size={12}>
                   {isEditMode ? (
                     <Controller
                       name="customer_reference"
@@ -1239,7 +1239,7 @@ function AccountEditPageContent() {
                 </Grid>
                 
                 {/* Account Type */}
-                <Grid item xs={12}>
+                <Grid size={12}>
                   {isEditMode ? (
                     <Controller
                       name="account_type"
@@ -1273,7 +1273,7 @@ function AccountEditPageContent() {
                 </Grid>
                 
                 {/* Contract Start Date */}
-                <Grid item xs={12}>
+                <Grid size={12}>
                   {isEditMode ? (
                     <Controller
                       name="contract_start_date"
@@ -1307,7 +1307,7 @@ function AccountEditPageContent() {
                 </Grid>
                 
                 {/* VAT Exempt */}
-                <Grid item xs={12}>
+                <Grid size={12}>
                   {isEditMode ? (
                     <Controller
                       name="vat_exempt"

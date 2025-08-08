@@ -10,8 +10,8 @@ export const CUSTOMER_GROUP_SELLING_CHANNEL_KEY = 'customerGroupSellingChannel';
  * Params for fetching a CustomerGroupSellingChannel
  */
 export interface CustomerGroupSellingChannelParams {
-  customerGroupId: string | number;
-  sellingChannelName: string;
+  customerGroupId?: string | number; // Optional parameter for customer group ID
+  sellingChannelId: string | number;
 }
 
 /**
@@ -32,8 +32,16 @@ export interface CustomerGroupSellingChannelResponse {
  * Fetches a CustomerGroupSellingChannel by customer group ID and selling channel name
  */
 export async function fetchCustomerGroupSellingChannel(params: CustomerGroupSellingChannelParams): Promise<CustomerGroupSellingChannelResponse> {
-  const { customerGroupId, sellingChannelName } = params;
-  const url = `/customer-group-selling-channel-filtered/?customer_group_id=${customerGroupId}&selling_channel_name=${encodeURIComponent(sellingChannelName)}`;
+  const { customerGroupId, sellingChannelId } = params;
+  
+  // Build URL with required parameters
+  let url = `/customer-group-selling-channel-filtered/?selling_channel_id=${encodeURIComponent(sellingChannelId)}`;
+  
+  // Add customer_group_id if available and not empty
+  if (customerGroupId !== undefined && customerGroupId !== null && customerGroupId !== '') {
+    url += `&customer_group_id=${customerGroupId}`;
+  }
+  
   const response = await api.get(url);
   return response.data;
 }
@@ -41,10 +49,15 @@ export async function fetchCustomerGroupSellingChannel(params: CustomerGroupSell
 /**
  * React hook to fetch CustomerGroupSellingChannel
  */
-export function useCustomerGroupSellingChannel(params: CustomerGroupSellingChannelParams) {
+export function useCustomerGroupSellingChannel(params: CustomerGroupSellingChannelParams & { enabled?: boolean }) {
+  const { enabled = true, ...queryParams } = params;
+  
   return useQuery<CustomerGroupSellingChannelResponse, Error>({
-    queryKey: [CUSTOMER_GROUP_SELLING_CHANNEL_KEY, params],
-    queryFn: () => fetchCustomerGroupSellingChannel(params),
-    enabled: Boolean(params.customerGroupId && params.sellingChannelName),
+    queryKey: [CUSTOMER_GROUP_SELLING_CHANNEL_KEY, queryParams],
+    queryFn: () => fetchCustomerGroupSellingChannel(queryParams),
+    // Enable the query if at least sellingChannelId is provided
+    // customerGroupId or selling_channel_name are optional
+    // Also respect the enabled parameter passed from the caller
+    enabled: enabled && Boolean(queryParams.sellingChannelId),
   });
 }

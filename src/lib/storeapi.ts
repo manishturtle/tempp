@@ -78,7 +78,7 @@ api.interceptors.request.use((config) => {
 export const setAuthToken = (token: string | null) => {
   if (token) {
     // api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    console.log('Auth token set (currently disabled):', token);
+    console.log('Auth token set (currently disabled)12:', token);
   } else {
     // delete api.defaults.headers.common['Authorization'];
     console.log('Auth token removed (currently disabled)');

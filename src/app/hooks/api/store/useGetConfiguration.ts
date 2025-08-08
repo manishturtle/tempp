@@ -37,8 +37,6 @@ export interface ApiCombinedConfiguration {
     daily_transaction_limit: string;
     customer_group_selling_channel: number | null;
     is_active: boolean;
-    kill_switch: boolean;
-    default_delivery_zone: string;
   };
 }
 
@@ -77,8 +75,6 @@ export interface StoreConfiguration {
     daily_transaction_limit: string;
     customer_group_selling_channel: number | null;
     is_active: boolean;
-    kill_switch: boolean;
-    default_delivery_zone: string;
   };
 }
 
@@ -102,21 +98,21 @@ export function useGetConfiguration() {
     const tenant = params?.tenant as string;
     // Fetch segment details from localStorage
     const segmentDetailsStr = localStorage.getItem(`${tenant}_segmentdetails`);
-    let segmentName = "";
+    let customerGroupSellingChannelId = "";
     if (segmentDetailsStr) {
       try {
         const segmentDetails = JSON.parse(segmentDetailsStr);
-        segmentName = Array.isArray(segmentDetails)
-          ? segmentDetails[0]?.segment_name
-          : segmentDetails.segment_name;
+        customerGroupSellingChannelId = Array.isArray(segmentDetails)
+          ? segmentDetails[0]?.id
+          : segmentDetails.id;
       } catch (e) {
-        segmentName = "";
+        customerGroupSellingChannelId = "";
       }
     }
     // Build API URL
     let url = `/combined-config/`;
-    if (segmentName) {
-      url += `?segment_name=${encodeURIComponent(segmentName)}`;
+    if (customerGroupSellingChannelId) {
+      url += `?customer_group_selling_channel_id=${encodeURIComponent(customerGroupSellingChannelId)}`;
     }
     const response = await api.get<ApiCombinedConfiguration>(url);
     console.log('Combined Config API Response:', response.data);

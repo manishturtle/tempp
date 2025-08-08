@@ -7,6 +7,7 @@ import { Box, Container, Typography, Paper, Grid, Button, styled, CircularProgre
 // Import the LandingPage component
 import { LandingPage } from '@/app/components/Store/Landingpage/LandingPage';
 import SlugNotFound from '@/app/components/Store/storeError/SlugNotFound';
+import { COCKPIT_API_BASE_URL } from '@/utils/constants';
 
 
 interface TenantInfo {
@@ -47,7 +48,7 @@ function HomeContent(): React.ReactElement {
         const tenantSlug = window.location.pathname.split('/')[1];
         
         // Call tenant verification API
-        const apiUrl = new URL('http://localhost:8000/platform-admin/api/tenant-by-url/');
+        const apiUrl = new URL(`${COCKPIT_API_BASE_URL}/platform-admin/tenant-by-url/`);
         apiUrl.searchParams.append('default_url', fullUrl);
         
         const response = await fetch(apiUrl.toString(), {
@@ -69,7 +70,7 @@ function HomeContent(): React.ReactElement {
           // http://localhost:8000/api/kumar_manish/tenant-admin/tenant-login-config/
           // Fetch tenant configuration data before navigation
           try {
-            const configResponse = await fetch(`http://localhost:8000/api/${tenantSlug}/tenant-admin/tenant-login-config/`, {
+            const configResponse = await fetch(`${COCKPIT_API_BASE_URL}/${tenantSlug}/tenant-admin/tenant-login-config/`, {
               method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
@@ -122,7 +123,7 @@ function HomeContent(): React.ReactElement {
               
               // Store tenant specific information with tenant prefix
               localStorage.setItem('currentTenantSlug', tenantSlug);
-              const app_id = localStorage.getItem(`${tenantSlug}_app_id`) || '5';
+              const app_id = localStorage.getItem(`${tenantSlug}_app_id`) || '';
               localStorage.setItem(`${tenantSlug}_app_id`, app_id);
             } else {
               console.error('Failed to fetch tenant configuration');

@@ -568,7 +568,7 @@ function PageManagementPage(): React.ReactElement {
       >
         <form>
           <Grid container spacing={3} sx={{ mt: 0 }}>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }}>
               <Controller
                 name="title"
                 control={control}
@@ -589,7 +589,7 @@ function PageManagementPage(): React.ReactElement {
               />
             </Grid>
             
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }}>
               <Controller
                 name="slug"
                 control={control}
@@ -613,7 +613,7 @@ function PageManagementPage(): React.ReactElement {
               />
             </Grid>
             
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }}>
               <Controller
                 name="meta_description"
                 control={control}
@@ -633,7 +633,7 @@ function PageManagementPage(): React.ReactElement {
               />
             </Grid>
             
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }}>
               <Controller
                 name="is_active"
                 control={control}
